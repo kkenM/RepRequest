@@ -1,5 +1,5 @@
 from flask import Flask
-from models import db, Company
+from models import db
 
 app = Flask(__name__)
 
@@ -14,18 +14,9 @@ db.init_app(app)
 def home():
     return 'RepRequest is running!'
 
-# Create database tables TEST
+# Updates existing database with new implementations
 with app.app_context():
     db.create_all()
-
-    # Test company
-    if Company.query.count() == 0:
-        test_company = Company(name='Test Company')
-
-        db.session.add(test_company)
-        db.session.commit()
-
-        print("Test company created.")
 
 # Runs development server
 if __name__ == '__main__':
