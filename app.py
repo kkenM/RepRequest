@@ -14,10 +14,6 @@ db.init_app(app)
 def home():
     return 'RepRequest is running!'
 
-# Updates existing database with new implementations
-with app.app_context():
-    db.create_all()
-
 # Runs development server
 if __name__ == '__main__':
     app.run(debug=True)
