@@ -1,5 +1,6 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # database object
 db = SQLAlchemy()
@@ -81,3 +82,11 @@ class User(db.Model):
         db.DateTime,
         default=datetime.now()
     )
+
+    # Convert text to secure hash
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    # Check password matches
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
