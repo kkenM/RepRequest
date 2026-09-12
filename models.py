@@ -1,3 +1,4 @@
+from flask_login import UserMixin
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -32,7 +33,7 @@ class Company(db.Model):
         lazy=True
     )
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     # Unique ID for each user
     id = db.Column(
         db.Integer,
