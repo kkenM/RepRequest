@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Company Administration - RepRequest</title>
+</head>
+
+<body>
+
+    <h1>Company Administration</h1>
+
+    <p>
+        Welcome,
+        {{ current_user.first_name }}
+        {{ current_user.last_name }}
+    </p>
+
+    <p>
+        Company:
+        {{ current_user.company_name }}
+    </p>
+
+    <p>
+        Role:
+        {{ current_user.role }}
+    </p>
+
+    <p>
+        Employee management will be available here.
+    </p>
+
+    <a href="{{ url_for('dashboard') }}">
+        Return to Dashboard
+    </a>
+
+</body>
+
+</html>

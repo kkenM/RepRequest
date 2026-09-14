@@ -34,6 +34,12 @@ class Company(db.Model):
     )
 
 class User(UserMixin, db.Model):
+
+    # User roles
+    ROLE_COMPANY_ADMIN = "company-admin"
+    ROLE_EMPLOYEE_CREW = "employee-crew"
+    ROLE_EMPLOYEE_TECHNICIAN = "employee-technician"
+
     # Unique ID for each user
     id = db.Column(
         db.Integer,

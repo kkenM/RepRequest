@@ -28,10 +28,13 @@
         {{ current_user.email }}
     </p>
 
+{% if current_user.role == "company-admin" %}
     <p>
-        Role:
-        {{ current_user.role }}
+        <a href="{{ url_for('admin') }}">
+           Company Administration
+        </a>
     </p>
+{% endif %}
 
     <form method="POST" action="{{ url_for('logout') }}">
         <button type="submit">
