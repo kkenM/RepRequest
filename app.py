@@ -1,6 +1,8 @@
 import os
 
-from flask import Flask, render_template, request, redirect, url_for
+from functools import wraps
+
+from flask import Flask, render_template, request, redirect, url_for, abort
 from flask_login import (
     LoginManager,
     login_user,
@@ -37,6 +39,21 @@ login_manager.login_view = "login"
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
+
+def role_required(*allowed_roles):
+    def decorator(view_function):
+
+        @wraps(view_function)
+        @login_required
+        def wrapped_view(*args, **kwargs):
+
+            # Check if the current user's role is allowed
+            if current_user.role not in allowed_roles:
+                abort(403)
+
+            return view_function(*args, **kwargs)
+        return wrapped_view
+    return decorator
 
 # Home route for application testing
 @app.route('/')
@@ -90,7 +107,7 @@ def register():
         first_name=first_name,
         last_name=last_name,
         email=email,
-        role="company-admin"
+        role=User.ROLE_COMPANY_ADMIN
     )
 
     # Hash the password before storing it
@@ -157,6 +174,16 @@ def logout():
 
     return redirect(url_for("login"))
 
+
+@app.route("/admin")
+@role_required(User.ROLE_COMPANY_ADMIN)
+def admin():
+    return render_template("admin.html")
+
+
+@app.errorhandler(403)
+def forbidden(error):
+    return render_template("403.html"), 403
 
 # Create database tables
 with app.app_context():

@@ -1,3 +1,3 @@
-Test login:
+Admin Test Account:
 email: johndoe@aol.com
 password: test123
