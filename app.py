@@ -2,7 +2,16 @@ import os
 
 from functools import wraps
 
-from flask import Flask, render_template, request, redirect, url_for, abort
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    abort,
+    flash
+)
+
 from flask_login import (
     LoginManager,
     login_user,
@@ -179,6 +188,78 @@ def logout():
 @role_required(User.ROLE_COMPANY_ADMIN)
 def admin():
     return render_template("admin.html")
+
+
+@app.route("/admin/employees/create", methods=["GET", "POST"])
+@role_required(User.ROLE_COMPANY_ADMIN)
+def create_employee():
+
+    # Display employee creation form
+    if request.method == "GET":
+        return render_template("create_employee.html")
+
+    # Get submitted employee information
+    first_name = request.form["first_name"].strip()
+    last_name = request.form["last_name"].strip()
+    email = request.form["email"].strip().lower()
+    password = request.form["password"].strip()
+    role = request.form["role"]
+
+    # Verify all fields contain a value
+    if (
+        not first_name
+        or not last_name
+        or not email
+        or not password
+        or not role
+    ):
+        return render_template(
+            "create_employee.html",
+            error="All fields are required."
+        )
+
+    # Only these two roles may be created here
+    allowed_roles = {
+        User.ROLE_EMPLOYEE_CREW,
+        User.ROLE_EMPLOYEE_TECHNICIAN
+    }
+
+    if role not in allowed_roles:
+        return render_template(
+            "create_employee.html",
+            error="Invalid employee role."
+        )
+
+    # Make sure email is not already registered
+    existing_user = User.query.filter_by(email=email).first()
+
+    if existing_user:
+        return render_template(
+            "create_employee.html",
+            error="An employee with that email already exists."
+        )
+
+    # Create employee under the CURRENT ADMIN's company
+    employee = User(
+        company_id=current_user.company_id,
+        first_name=first_name,
+        last_name=last_name,
+        email=email,
+        role=role
+    )
+
+    # Securely hash temp password
+    employee.set_password(password)
+
+    db.session.add(employee)
+    db.session.commit()
+
+    flash(
+        "Employee account created successfully.",
+        "success"
+    )
+
+    return redirect(url_for("admin"))
 
 
 @app.errorhandler(403)
