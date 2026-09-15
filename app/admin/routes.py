@@ -30,8 +30,12 @@ from flask_login import (
     login_required
 )
 
-from app.extensions import db
-from models import User
+from app.models import User
+from app.services import user_service
+from app.services.exceptions import (
+    DuplicateEmailError,
+    InvalidEmployeeRoleError
+)
 
 
 # All routes in this Blueprint begin with /admin
@@ -96,7 +100,7 @@ def dashboard():
 @role_required(User.ROLE_COMPANY_ADMIN)
 def create_employee():
     """
-    Create a new employee account under the authenticated
+    Create an employee belonging to the authenticated
     administrator's company.
     """
 
@@ -123,38 +127,30 @@ def create_employee():
             error="All fields are required."
         )
 
-    if role not in User.EMPLOYEE_ROLES:
+    try:
+        user_service.create_employee(
+            # SECURITY:
+            # The company comes from the authenticated administrator,
+            # never from browser-submitted form data.
+            company_id=current_user.company_id,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            password=password,
+            role=role
+        )
+
+    except InvalidEmployeeRoleError:
         return render_template(
             "admin/create_employee.html",
             error="Invalid employee role."
         )
 
-    existing_user = User.query.filter_by(
-        email=email
-    ).first()
-
-    if existing_user:
+    except DuplicateEmailError:
         return render_template(
             "admin/create_employee.html",
-            error="An employee with that email already exists."
+            error="An account with that email already exists."
         )
-
-    # SECURITY:
-    # Never accept company_id from form input.
-    # The new employee must inherit the authenticated
-    # administrator's company.
-    employee = User(
-        company_id=current_user.company_id,
-        first_name=first_name,
-        last_name=last_name,
-        email=email,
-        role=role
-    )
-
-    employee.set_password(password)
-
-    db.session.add(employee)
-    db.session.commit()
 
     flash(
         "Employee account created successfully.",
@@ -165,7 +161,10 @@ def create_employee():
         url_for("admin.dashboard")
     )
 
-
+@admin_bp.route(
+    "/employees/<int:employee_id>/edit",
+    methods=["GET", "POST"]
+)
 @admin_bp.route(
     "/employees/<int:employee_id>/edit",
     methods=["GET", "POST"]
@@ -177,13 +176,15 @@ def edit_employee(employee_id):
     administrator's company.
     """
 
-    # The company_id condition prevents one company's
-    # administrator from accessing another company's employee.
-    employee = User.query.filter(
-        User.id == employee_id,
-        User.company_id == current_user.company_id,
-        User.role.in_(User.EMPLOYEE_ROLES)
-    ).first_or_404()
+    employee = user_service.get_company_employee(
+        company_id=current_user.company_id,
+        employee_id=employee_id
+    )
+
+    # Return 404 instead of exposing employees belonging
+    # to another company.
+    if employee is None:
+        abort(404)
 
     if request.method == "GET":
         return render_template(
@@ -208,31 +209,28 @@ def edit_employee(employee_id):
             error="All fields are required."
         )
 
-    if role not in User.EMPLOYEE_ROLES:
+    try:
+        user_service.update_employee(
+            employee=employee,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            role=role
+        )
+
+    except InvalidEmployeeRoleError:
         return render_template(
             "admin/edit_employee.html",
             employee=employee,
             error="Invalid employee role."
         )
 
-    existing_user = User.query.filter(
-        User.email == email,
-        User.id != employee.id
-    ).first()
-
-    if existing_user:
+    except DuplicateEmailError:
         return render_template(
             "admin/edit_employee.html",
             employee=employee,
             error="An account with that email already exists."
         )
-
-    employee.first_name = first_name
-    employee.last_name = last_name
-    employee.email = email
-    employee.role = role
-
-    db.session.commit()
 
     flash(
         "Employee account updated successfully.",
@@ -255,19 +253,22 @@ def delete_employee(employee_id):
     administrator's company.
     """
 
-    employee = User.query.filter(
-        User.id == employee_id,
-        User.company_id == current_user.company_id,
-        User.role.in_(User.EMPLOYEE_ROLES)
-    ).first_or_404()
+    employee = user_service.get_company_employee(
+        company_id=current_user.company_id,
+        employee_id=employee_id
+    )
+
+    if employee is None:
+        abort(404)
 
     employee_name = (
         f"{employee.first_name} "
         f"{employee.last_name}"
     )
 
-    db.session.delete(employee)
-    db.session.commit()
+    user_service.delete_employee(
+        employee
+    )
 
     flash(
         f"{employee_name} was deleted successfully.",

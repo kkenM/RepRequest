@@ -44,6 +44,10 @@ def create_app(config_class=Config):
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
 
+    # Ensure SQLAlchemy knows about all RepRequest models
+    # before creating database tables.
+    from app.models import Company, User
+
     # Temporary database initialization.
     # Flask-Migrate will replace this in a later step.
     with app.app_context():

@@ -6,6 +6,8 @@ Responsibilities:
 - Authenticate users
 - End authenticated sessions
 - Reload users from Flask-Login sessions
+
+Business logic belongs in the service layer rather than here.
 """
 
 from flask import (
@@ -24,10 +26,14 @@ from flask_login import (
 )
 
 from app.extensions import db, login_manager
-from models import Company, User
+from app.models import User
+from app.services import (
+    company_service,
+    user_service
+)
+from app.services.exceptions import DuplicateEmailError
 
 
-# Authentication Blueprint
 auth_bp = Blueprint(
     "auth",
     __name__
@@ -37,22 +43,29 @@ auth_bp = Blueprint(
 @login_manager.user_loader
 def load_user(user_id):
     """
-    Reload a user from the database using the ID stored
-    in the authenticated Flask session.
+    Reload the authenticated user using the ID stored
+    in the Flask session.
     """
 
-    return db.session.get(User, int(user_id))
+    return db.session.get(
+        User,
+        int(user_id)
+    )
 
 
-@auth_bp.route("/register", methods=["GET", "POST"])
+@auth_bp.route(
+    "/register",
+    methods=["GET", "POST"]
+)
 def register():
     """
-    Register a new company and create its first
-    company-administrator account.
+    Register a company and its first administrator.
     """
 
     if request.method == "GET":
-        return render_template("auth/register.html")
+        return render_template(
+            "auth/register.html"
+        )
 
     company_name = request.form["company_name"].strip()
     first_name = request.form["first_name"].strip()
@@ -60,6 +73,7 @@ def register():
     email = request.form["email"].strip().lower()
     password = request.form["password"]
 
+    # HTTP/form validation belongs in the route.
     if (
         not company_name
         or not first_name
@@ -72,44 +86,30 @@ def register():
             error="All fields are required."
         )
 
-    existing_user = User.query.filter_by(
-        email=email
-    ).first()
+    try:
+        company_service.create_company_with_admin(
+            company_name=company_name,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            password=password
+        )
 
-    if existing_user:
+    except DuplicateEmailError:
         return render_template(
             "auth/register.html",
             error="An account with that email already exists."
         )
-
-    # Create the company first so its ID can be assigned
-    # to the company's initial administrator.
-    company = Company(
-        name=company_name
-    )
-
-    db.session.add(company)
-    db.session.flush()
-
-    admin_user = User(
-        company_id=company.id,
-        first_name=first_name,
-        last_name=last_name,
-        email=email,
-        role=User.ROLE_COMPANY_ADMIN
-    )
-
-    admin_user.set_password(password)
-
-    db.session.add(admin_user)
-    db.session.commit()
 
     return redirect(
         url_for("auth.login")
     )
 
 
-@auth_bp.route("/login", methods=["GET", "POST"])
+@auth_bp.route(
+    "/login",
+    methods=["GET", "POST"]
+)
 def login():
     """
     Authenticate an existing RepRequest user.
@@ -122,15 +122,15 @@ def login():
 
     if request.method == "POST":
 
-        email = request.form["email"].strip().lower()
+        email = request.form["email"]
         password = request.form["password"]
 
-        user = User.query.filter_by(
-            email=email
-        ).first()
+        user = user_service.authenticate_user(
+            email=email,
+            password=password
+        )
 
-        if user and user.check_password(password):
-
+        if user:
             login_user(user)
 
             return redirect(
@@ -147,7 +147,10 @@ def login():
     )
 
 
-@auth_bp.route("/logout", methods=["POST"])
+@auth_bp.route(
+    "/logout",
+    methods=["POST"]
+)
 @login_required
 def logout():
     """
