@@ -30,13 +30,13 @@
 
 {% if current_user.role == "company-admin" %}
     <p>
-        <a href="{{ url_for('admin') }}">
+        <a href="{{ url_for('admin.dashboard') }}">
            Company Administration
         </a>
     </p>
 {% endif %}
 
-    <form method="POST" action="{{ url_for('logout') }}">
+    <form method="POST" action="{{ url_for('auth.logout') }}">
         <button type="submit">
             Logout
         </button>

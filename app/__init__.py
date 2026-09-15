@@ -2,7 +2,7 @@
 RepRequest application factory.
 
 This module constructs and configures the Flask application.
-Feature-specific behavior should live elsewhere in the app package.
+Feature-specific behavior should live in dedicated Blueprints.
 """
 
 from pathlib import Path
@@ -21,9 +21,6 @@ def create_app(config_class=Config):
     # Path to the RepRequest project root
     project_root = Path(__file__).resolve().parent.parent
 
-    # Flask automatically looks for:
-    # app/templates/
-    # app/static/
     app = Flask(
         __name__,
         instance_path=str(project_root / "instance")
@@ -36,12 +33,19 @@ def create_app(config_class=Config):
     db.init_app(app)
     login_manager.init_app(app)
 
-    # Register application routes
-    from app.routes import register_routes
-    register_routes(app)
+    # Import Blueprints after extensions have been initialized
+    # to avoid circular-import problems.
+    from app.main.routes import main_bp
+    from app.auth.routes import auth_bp
+    from app.admin.routes import admin_bp
+
+    # Register application feature modules
+    app.register_blueprint(main_bp)
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(admin_bp)
 
     # Temporary database initialization.
-    # Flask-Migrate will replace this later.
+    # Flask-Migrate will replace this in a later step.
     with app.app_context():
         db.create_all()
 
