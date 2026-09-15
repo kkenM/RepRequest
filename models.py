@@ -1,10 +1,17 @@
-from flask_login import UserMixin
+"""
+Database models for RepRequest.
+
+This module currently defines the Company and User entities.
+The models will be separated into individual modules in a later
+refactoring step.
+"""
+
 from datetime import datetime
-from flask_sqlalchemy import SQLAlchemy
+
+from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
-# database object
-db = SQLAlchemy()
+from app.extensions import db
 
 class Company(db.Model):
     # Unique identifier for each company
