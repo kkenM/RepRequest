@@ -187,7 +187,18 @@ def logout():
 @app.route("/admin")
 @role_required(User.ROLE_COMPANY_ADMIN)
 def admin():
-    return render_template("admin.html")
+
+    # Retrieve employees belonging only to the currently
+    # logged-in administrator's company
+    employees = User.query.filter(
+        User.company_id == current_user.company_id,
+        User.role.in_(User.EMPLOYEE_ROLES)
+    ).order_by(
+        User.last_name,
+        User.first_name,
+    ).all()
+
+    return render_template("admin.html", employees=employees)
 
 
 @app.route("/admin/employees/create", methods=["GET", "POST"])
@@ -218,13 +229,8 @@ def create_employee():
             error="All fields are required."
         )
 
-    # Only these two roles may be created here
-    allowed_roles = {
-        User.ROLE_EMPLOYEE_CREW,
-        User.ROLE_EMPLOYEE_TECHNICIAN
-    }
 
-    if role not in allowed_roles:
+    if role not in User.EMPLOYEE_ROLES:
         return render_template(
             "create_employee.html",
             error="Invalid employee role."
@@ -261,6 +267,108 @@ def create_employee():
 
     return redirect(url_for("admin"))
 
+@app.route("/admin/employees/<int:employee_id>/edit", methods=["GET", "POST"])
+@role_required(User.ROLE_COMPANY_ADMIN)
+def edit_employee(employee_id):
+    # Find the employee, but only if they belong
+    # to the current administrator's company
+    employee = User.query.filter(
+        User.id == employee_id,
+        User.company_id == current_user.company_id,
+        User.role.in_(User.EMPLOYEE_ROLES)
+    ).first_or_404()
+
+    # Display edit form
+    if request.method == "GET":
+        return render_template(
+            "edit_employee.html",
+            employee=employee
+        )
+
+    # Retrieve updated information
+    first_name = request.form["first_name"].strip()
+    last_name = request.form["last_name"].strip()
+    email = request.form["email"].strip().lower()
+    role = request.form["role"]
+
+    # Validate required fields
+    if (
+            not first_name
+            or not last_name
+            or not email
+            or not role
+    ):
+        return render_template(
+            "edit_employee.html",
+            employee=employee,
+            error="All fields are required."
+        )
+
+    # Only employee roles are permitted
+    if role not in User.EMPLOYEE_ROLES:
+        return render_template(
+            "edit_employee.html",
+            employee=employee,
+            error="Invalid employee role."
+        )
+
+    # Check whether another user already has this email
+    existing_user = User.query.filter(
+        User.email == email,
+        User.id != employee.id
+    ).first()
+
+    if existing_user:
+        return render_template(
+            "edit_employee.html",
+            employee=employee,
+            error="An account with that email already exists."
+        )
+
+    # Update employee information
+    employee.first_name = first_name
+    employee.last_name = last_name
+    employee.email = email
+    employee.role = role
+
+    db.session.commit()
+
+    flash(
+        "Employee account updated successfully.",
+        "success"
+    )
+
+    return redirect(url_for("admin"))
+
+@app.route(
+    "/admin/employees/<int:employee_id>/delete",
+    methods=["POST"]
+)
+@role_required(User.ROLE_COMPANY_ADMIN)
+def delete_employee(employee_id):
+
+    # Only retrieve employees belonging to
+    # the current administrator's company
+    employee = User.query.filter(
+        User.id == employee_id,
+        User.company_id == current_user.company_id,
+        User.role.in_(User.EMPLOYEE_ROLES)
+    ).first_or_404()
+
+    employee_name = (
+        f"{employee.first_name} "
+        f"{employee.last_name}"
+    )
+
+    db.session.delete(employee)
+    db.session.commit()
+
+    flash(
+        f"{employee_name} was deleted successfully.",
+        "success"
+    )
+
+    return redirect(url_for("admin"))
 
 @app.errorhandler(403)
 def forbidden(error):
