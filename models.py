@@ -40,6 +40,12 @@ class User(UserMixin, db.Model):
     ROLE_EMPLOYEE_CREW = "employee-crew"
     ROLE_EMPLOYEE_TECHNICIAN = "employee-technician"
 
+    # Assignable employee roles
+    EMPLOYEE_ROLES = (
+        ROLE_EMPLOYEE_CREW,
+        ROLE_EMPLOYEE_TECHNICIAN,
+    )
+
     # Unique ID for each user
     id = db.Column(
         db.Integer,
