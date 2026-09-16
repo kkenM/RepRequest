@@ -109,6 +109,8 @@ def test_admin_cannot_delete_other_company_employee(
             role=EMPLOYEE_CREW
         )
 
+        # Store primitive IDs before leaving this database session.
+        company_b_id = company_b.id
         employee_b_id = employee_b.id
 
     client.post(
@@ -123,13 +125,14 @@ def test_admin_cannot_delete_other_company_employee(
         f"/admin/employees/{employee_b_id}/delete"
     )
 
+    # Company A must not be able to access Company B's employee.
     assert response.status_code == 404
 
     with app.app_context():
 
         employee_still_exists = (
             user_service.get_company_employee(
-                company_id=company_b.id,
+                company_id=company_b_id,
                 employee_id=employee_b_id
             )
         )
