@@ -1,0 +1,66 @@
+"""
+RepRequest application factory.
+
+This module assembles the Flask application by loading configuration,
+initializing extensions, registering Blueprints, and installing global
+error handlers.
+
+Do not place feature-specific routes or business logic in this module.
+Feature behavior should live in Blueprints and services.
+"""
+
+from pathlib import Path
+
+from flask import Flask
+
+from config import Config
+from app.extensions import db, login_manager, migrate
+
+def create_app(config_class=Config):
+    """
+    Create and configure a RepRequest Flask application.
+    """
+
+    # Path to the RepRequest project root
+    project_root = Path(__file__).resolve().parent.parent
+
+    app = Flask(
+        __name__,
+        instance_path=str(project_root / "instance")
+    )
+
+    # Load application configuration
+    app.config.from_object(config_class)
+
+    # Initialize Flask extensions
+    db.init_app(app)
+    login_manager.init_app(app)
+
+    migrate.init_app(
+        app,
+        db
+    )
+
+    # Import Blueprints after extensions have been initialized
+    # to avoid circular-import problems.
+    from app.main.routes import main_bp
+    from app.auth.routes import auth_bp
+    from app.admin.routes import admin_bp
+
+    # Register application feature modules
+    app.register_blueprint(main_bp)
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(admin_bp)
+
+    # Register application-wide error handling
+    from app.errors import register_error_handlers
+    register_error_handlers(app)
+
+    # Ensure SQLAlchemy knows about all RepRequest models
+    # before creating database tables.
+    from app.models import Company, User
+
+    # Temporary database initialization.
+    # Flask-Migrate will replace this in a later step.
+
+    return app

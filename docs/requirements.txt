@@ -1,5 +1,6 @@
-flask
-flask-sqlalchemy
-flask-login
-
-sqlalchemy
+Flask
+Flask-SQLAlchemy
+Flask-Login
+Werkzeug
+Flask-Migrate
+pytest
