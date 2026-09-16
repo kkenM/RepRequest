@@ -12,7 +12,6 @@ from flask import Flask
 from config import Config
 from app.extensions import db, login_manager
 
-
 def create_app(config_class=Config):
     """
     Create and configure a RepRequest Flask application.
@@ -43,6 +42,10 @@ def create_app(config_class=Config):
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
+
+    # Register application-wide error handling
+    from app.errors import register_error_handlers
+    register_error_handlers(app)
 
     # Ensure SQLAlchemy knows about all RepRequest models
     # before creating database tables.

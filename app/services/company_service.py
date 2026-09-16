@@ -5,6 +5,7 @@ This module manages operations that involve Company entities
 and their associated account setup.
 """
 
+from app.roles import COMPANY_ADMIN
 from app.extensions import db
 from app.models import Company, User
 from app.services.exceptions import DuplicateEmailError
@@ -47,7 +48,7 @@ def create_company_with_admin(
         first_name=first_name,
         last_name=last_name,
         email=email,
-        role=User.ROLE_COMPANY_ADMIN
+        role=COMPANY_ADMIN
     )
 
     admin_user.set_password(password)

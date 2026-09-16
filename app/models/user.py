@@ -14,7 +14,11 @@ from werkzeug.security import (
 )
 
 from app.extensions import db
-
+from app.roles import (
+    COMPANY_ADMIN,
+    EMPLOYEE_ROLES,
+    ROLE_LABELS
+)
 
 class User(UserMixin, db.Model):
     """
@@ -22,18 +26,6 @@ class User(UserMixin, db.Model):
     """
 
     __tablename__ = "user"
-
-    # User authorization roles
-    ROLE_COMPANY_ADMIN = "company-admin"
-    ROLE_EMPLOYEE_CREW = "employee-crew"
-    ROLE_EMPLOYEE_TECHNICIAN = "employee-technician"
-
-    # Roles that company administrators may assign
-    # to employee accounts.
-    EMPLOYEE_ROLES = (
-        ROLE_EMPLOYEE_CREW,
-        ROLE_EMPLOYEE_TECHNICIAN
-    )
 
     id = db.Column(
         db.Integer,
@@ -95,4 +87,32 @@ class User(UserMixin, db.Model):
         return check_password_hash(
             self.password_hash,
             password
+        )
+
+    @property
+    def is_company_admin(self):
+        """
+        Return True when the user has company-administrator
+        privileges.
+        """
+
+        return self.role == COMPANY_ADMIN
+
+    @property
+    def is_employee(self):
+        """
+        Return True when the account uses an employee role.
+        """
+
+        return self.role in EMPLOYEE_ROLES
+
+    @property
+    def role_label(self):
+        """
+        Return a human-readable version of the user's role.
+        """
+
+        return ROLE_LABELS.get(
+            self.role,
+            self.role
         )

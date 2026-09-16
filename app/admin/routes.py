@@ -13,8 +13,6 @@ All employee operations must be scoped to the authenticated
 administrator's company_id.
 """
 
-from functools import wraps
-
 from flask import (
     Blueprint,
     abort,
@@ -25,11 +23,10 @@ from flask import (
     url_for
 )
 
-from flask_login import (
-    current_user,
-    login_required
-)
+from flask_login import current_user
 
+from app.roles import EMPLOYEE_ROLE_OPTIONS
+from app.authorization import company_admin_required
 from app.models import User
 from app.services import user_service
 from app.services.exceptions import (
@@ -45,47 +42,29 @@ admin_bp = Blueprint(
     url_prefix="/admin"
 )
 
-
-def role_required(*allowed_roles):
+@admin_bp.context_processor
+def inject_employee_role_options():
     """
-    Restrict a route to authenticated users whose role
-    appears in allowed_roles.
-
-    This decorator will be moved into a reusable authorization
-    module during a later refactoring step.
+    Make valid employee role choices available to all
+    templates rendered by the admin Blueprint.
     """
 
-    def decorator(view_function):
-
-        @wraps(view_function)
-        @login_required
-        def wrapped_view(*args, **kwargs):
-
-            if current_user.role not in allowed_roles:
-                abort(403)
-
-            return view_function(*args, **kwargs)
-
-        return wrapped_view
-
-    return decorator
+    return {
+        "employee_role_options": EMPLOYEE_ROLE_OPTIONS
+    }
 
 
 @admin_bp.route("/", strict_slashes=False)
-@role_required(User.ROLE_COMPANY_ADMIN)
+@company_admin_required
 def dashboard():
     """
     Display employees belonging to the authenticated
     administrator's company.
     """
 
-    employees = User.query.filter(
-        User.company_id == current_user.company_id,
-        User.role.in_(User.EMPLOYEE_ROLES)
-    ).order_by(
-        User.last_name,
-        User.first_name
-    ).all()
+    employees = user_service.get_company_employees(
+        current_user.company_id
+    )
 
     return render_template(
         "admin/admin.html",
@@ -97,7 +76,7 @@ def dashboard():
     "/employees/create",
     methods=["GET", "POST"]
 )
-@role_required(User.ROLE_COMPANY_ADMIN)
+@company_admin_required
 def create_employee():
     """
     Create an employee belonging to the authenticated
@@ -169,7 +148,7 @@ def create_employee():
     "/employees/<int:employee_id>/edit",
     methods=["GET", "POST"]
 )
-@role_required(User.ROLE_COMPANY_ADMIN)
+@company_admin_required
 def edit_employee(employee_id):
     """
     Edit an employee belonging to the authenticated
@@ -246,7 +225,7 @@ def edit_employee(employee_id):
     "/employees/<int:employee_id>/delete",
     methods=["POST"]
 )
-@role_required(User.ROLE_COMPANY_ADMIN)
+@company_admin_required
 def delete_employee(employee_id):
     """
     Delete an employee belonging to the authenticated
@@ -278,14 +257,3 @@ def delete_employee(employee_id):
     return redirect(
         url_for("admin.dashboard")
     )
-
-
-@admin_bp.app_errorhandler(403)
-def forbidden(error):
-    """
-    Display a friendly page when access is denied.
-    """
-
-    return render_template(
-        "errors/403.html"
-    ), 403

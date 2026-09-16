@@ -28,7 +28,7 @@
         {{ current_user.email }}
     </p>
 
-{% if current_user.role == "company-admin" %}
+{% if current_user.is_company_admin %}
     <p>
         <a href="{{ url_for('admin.dashboard') }}">
            Company Administration

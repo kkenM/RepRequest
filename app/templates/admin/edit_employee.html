@@ -73,19 +73,16 @@
             required
         >
 
-            <option
-                value="employee-crew"
-                {% if employee.role == "employee-crew" %}selected{% endif %}
-            >
-                Crew Employee
-            </option>
+            {% for role_value, role_label in employee_role_options %}
 
-            <option
-                value="employee-technician"
-                {% if employee.role == "employee-technician" %}selected{% endif %}
-            >
-                Technician
-            </option>
+                <option
+                    value="{{ role_value }}"
+                    {% if employee.role == role_value %}selected{% endif %}
+                >
+                    {{ role_label }}
+                </option>
+
+            {% endfor %}
 
         </select>
 

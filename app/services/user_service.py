@@ -13,6 +13,7 @@ Responsibilities include:
 - Deleting employees
 """
 
+from app.roles import EMPLOYEE_ROLES
 from app.extensions import db
 from app.models import User
 from app.services.exceptions import (
@@ -65,7 +66,7 @@ def get_company_employees(company_id):
 
     return User.query.filter(
         User.company_id == company_id,
-        User.role.in_(User.EMPLOYEE_ROLES)
+        User.role.in_(EMPLOYEE_ROLES)
     ).order_by(
         User.last_name,
         User.first_name
@@ -84,7 +85,7 @@ def get_company_employee(company_id, employee_id):
     return User.query.filter(
         User.id == employee_id,
         User.company_id == company_id,
-        User.role.in_(User.EMPLOYEE_ROLES)
+        User.role.in_(EMPLOYEE_ROLES)
     ).first()
 
 
@@ -105,7 +106,7 @@ def create_employee(
 
     email = normalize_email(email)
 
-    if role not in User.EMPLOYEE_ROLES:
+    if role not in EMPLOYEE_ROLES:
         raise InvalidEmployeeRoleError()
 
     if get_user_by_email(email):
@@ -140,7 +141,7 @@ def update_employee(
 
     email = normalize_email(email)
 
-    if role not in User.EMPLOYEE_ROLES:
+    if role not in EMPLOYEE_ROLES:
         raise InvalidEmployeeRoleError()
 
     existing_user = User.query.filter(

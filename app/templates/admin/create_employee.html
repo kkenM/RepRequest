@@ -67,13 +67,19 @@
       name="role"
       required
     >
-      <option value="">Select Role</option>
-      <option value="employee-crew">
-        Crew Employee
+
+      <option value="">
+        Select Role
       </option>
-      <option value="employee-technician">
-        Technician
-      </option>
+
+      {% for role_value, role_label in employee_role_options %}
+
+        <option value="{{ role_value }}">
+            {{ role_label }}
+        </option>
+
+    {% endfor %}
+
     </select>
 
     <br><br>
