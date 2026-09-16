@@ -1,13 +1,11 @@
 """
-Authentication routes for RepRequest.
+Authentication HTTP routes for RepRequest.
 
-Responsibilities:
-- Register a company and its first administrator
-- Authenticate users
-- End authenticated sessions
-- Reload users from Flask-Login sessions
+Responsibilities include company registration, login, logout,
+and authenticated-session behavior.
 
-Business logic belongs in the service layer rather than here.
+Business operations should be delegated to the service layer whenever
+they are not specifically concerned with HTTP requests or sessions.
 """
 
 from flask import (

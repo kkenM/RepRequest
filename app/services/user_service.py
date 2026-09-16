@@ -1,16 +1,11 @@
 """
 User-related business logic for RepRequest.
 
-This module handles account operations that should not be tied
-directly to Flask routes.
+Routes should call these functions instead of directly implementing
+user database operations.
 
-Responsibilities include:
-- Looking up users
-- Authenticating users
-- Retrieving company employees
-- Creating employees
-- Updating employees
-- Deleting employees
+This module must not render templates, access request.form, or perform
+HTTP redirects.
 """
 
 from app.roles import EMPLOYEE_ROLES

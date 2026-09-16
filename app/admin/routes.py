@@ -1,16 +1,11 @@
 """
-Company administration routes for RepRequest.
+Company-administration HTTP routes.
 
-Responsibilities:
-- Display employees belonging to the current company
-- Create employee accounts
-- Edit employee accounts
-- Delete employee accounts
-- Protect administrative functionality by user role
+Routes should read requests, perform request-level validation,
+call service-layer operations, and return responses.
 
-IMPORTANT:
-All employee operations must be scoped to the authenticated
-administrator's company_id.
+Database and business operations should live in app.services rather
+than being implemented directly in this module.
 """
 
 from flask import (

@@ -1,7 +1,0 @@
-Admin Test Account:
-email: johndoe@aol.com
-password: test123
-
-Technician Test Account
-email: janedoe@aol.com
-password: test123

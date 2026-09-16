@@ -1,8 +1,11 @@
 """
 Company-related business logic for RepRequest.
 
-This module manages operations that involve Company entities
-and their associated account setup.
+This module handles operations involving Company entities and
+company-account setup.
+
+HTTP request handling and HTML rendering belong in route modules,
+not in this service.
 """
 
 from app.roles import COMPANY_ADMIN

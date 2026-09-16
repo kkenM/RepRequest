@@ -1,8 +1,12 @@
 """
 RepRequest application factory.
 
-This module constructs and configures the Flask application.
-Feature-specific behavior should live in dedicated Blueprints.
+This module assembles the Flask application by loading configuration,
+initializing extensions, registering Blueprints, and installing global
+error handlers.
+
+Do not place feature-specific routes or business logic in this module.
+Feature behavior should live in Blueprints and services.
 """
 
 from pathlib import Path

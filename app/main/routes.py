@@ -1,12 +1,10 @@
 """
 General application routes for RepRequest.
 
-Responsibilities:
-- Application home page
-- Authenticated user dashboard
+This Blueprint contains shared application pages such as the home page
+and authenticated user dashboard.
 
-Feature-specific functionality should live in its own Blueprint
-rather than being added to this module.
+Feature-specific behavior should live in its own Blueprint.
 """
 
 from flask import Blueprint, render_template
