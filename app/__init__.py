@@ -14,7 +14,7 @@ from pathlib import Path
 from flask import Flask
 
 from config import Config
-from app.extensions import db, login_manager
+from app.extensions import db, login_manager, migrate
 
 def create_app(config_class=Config):
     """
@@ -35,6 +35,11 @@ def create_app(config_class=Config):
     # Initialize Flask extensions
     db.init_app(app)
     login_manager.init_app(app)
+
+    migrate.init_app(
+        app,
+        db
+    )
 
     # Import Blueprints after extensions have been initialized
     # to avoid circular-import problems.
@@ -57,7 +62,5 @@ def create_app(config_class=Config):
 
     # Temporary database initialization.
     # Flask-Migrate will replace this in a later step.
-    with app.app_context():
-        db.create_all()
 
     return app

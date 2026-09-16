@@ -7,12 +7,15 @@ when RepRequest starts.
 """
 
 from flask_login import LoginManager
+from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
 
 # Database extension
 db = SQLAlchemy()
 
+# Database migration extension
+migrate = Migrate()
 
 # Authentication/session extension
 login_manager = LoginManager()

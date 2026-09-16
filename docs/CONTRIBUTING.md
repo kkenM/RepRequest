@@ -474,3 +474,42 @@ Is this presenting information?
 ```
 
 If responsibility is unclear, discuss the design before introducing a new architectural pattern.
+
+# Database Migrations
+
+RepRequest uses Flask-Migrate to manage database schema changes.
+
+Do not rely on `db.create_all()` for normal application development.
+
+After pulling code that includes new migrations, run:
+
+```bash
+python -m flask --app run.py db upgrade
+```
+
+When intentionally changing a database model:
+
+```bash
+python -m flask --app run.py db migrate -m "Describe schema change"
+python -m flask --app run.py db upgrade
+```
+
+Always review generated migration files before committing them.
+
+Migration files under:
+
+```text
+migrations/
+```
+
+must be committed to Git.
+
+The local SQLite database under:
+
+```text
+instance/
+```
+
+must not be committed.
+
+Do not create migrations for unrelated model changes in the same branch unless they belong to the same feature.

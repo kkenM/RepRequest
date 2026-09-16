@@ -27,3 +27,17 @@ class Config:
 
     # Disable unnecessary SQLAlchemy event tracking
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+class TestingConfig(Config):
+    """
+    Configuration used by the automated test suite.
+
+    Tests use a temporary in-memory SQLite database so they
+    never modify the developer's normal accounts.db database.
+    """
+
+    TESTING = True
+
+    SECRET_KEY = "test-secret-key"
+
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
