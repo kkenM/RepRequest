@@ -139,10 +139,7 @@ def create_employee():
     "/employees/<int:employee_id>/edit",
     methods=["GET", "POST"]
 )
-@admin_bp.route(
-    "/employees/<int:employee_id>/edit",
-    methods=["GET", "POST"]
-)
+
 @company_admin_required
 def edit_employee(employee_id):
     """
