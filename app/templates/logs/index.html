@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Maintenance Logs - RepRequest{% endblock %}
+
+{% block content %}
+
+    <div class="page-head">
+        <div class="page-head__text">
+            <span class="eyebrow">Service history</span>
+            <h1>Maintenance Logs</h1>
+            <p class="page-head__sub">
+                Every repair ever carried out on a {{ current_user.company.name }}
+                machine, kept permanently against that machine.
+            </p>
+        </div>
+        <span class="badge badge--soon">Coming soon</span>
+    </div>
+
+    {% set feature_title = "Maintenance logs are not built yet" %}
+    {% set feature_lede =
+        "This is where technicians will record what was done, which parts were
+         used and how long it took, building up a complete service history that
+         anyone in the company can read later." %}
+    {% set feature_points = [
+        "File work performed, parts used and labour hours",
+        "Required before a request can be marked Repair Complete",
+        "Full per-machine history, newest first"
+    ] %}
+    {% include "partials/_coming_soon.html" %}
+
+{% endblock %}

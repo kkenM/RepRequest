@@ -1,0 +1,25 @@
+{# Flash messages queued by routes with flash(). #}
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert--{{ 'success' if category == 'success'
+                                        else 'error' if category == 'error'
+                                        else 'info' }}"
+                 role="status">
+                <span class="alert__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        {% if category == 'success' %}
+                            <path d="M20 6 9 17l-5-5"/>
+                        {% else %}
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 8v5M12 16h.01"/>
+                        {% endif %}
+                    </svg>
+                </span>
+                <span>{{ message }}</span>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}

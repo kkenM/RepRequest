@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Manage Machines - RepRequest{% endblock %}
+
+{% block content %}
+
+    <div class="page-head">
+        <div class="page-head__text">
+            <span class="eyebrow">Machine registry</span>
+            <h1>Manage Machines</h1>
+            <p class="page-head__sub">
+                Register the machines {{ current_user.company.name }} owns and print
+                the QR label that crew members scan to report a fault.
+            </p>
+        </div>
+        <span class="badge badge--soon">Coming soon</span>
+    </div>
+
+    {% set feature_title = "The machine registry is not built yet" %}
+    {% set feature_lede =
+        "This is where you will add each CNC machine, press or lathe your company
+         owns, keep its asset tag and location up to date, and print the QR label
+         that opens the repair form for that exact machine." %}
+    {% set feature_points = [
+        "Register a machine with asset tag, name and location",
+        "Generate and print a unique QR label per machine",
+        "Track machine status: operational, action needed, in progress, down"
+    ] %}
+    {% include "partials/_coming_soon.html" %}
+
+{% endblock %}

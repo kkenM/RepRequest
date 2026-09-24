@@ -1,0 +1,43 @@
+{#
+    Base layout for every authenticated RepRequest page.
+
+    Child templates override:
+        title        page title shown in the browser tab
+        page_class   optional extra class on <main>
+        content      the page body
+
+    The navigation bar is rendered here so that navigation is defined in one
+    place. Hiding a tab here is presentation only -- every route still enforces
+    its own authorisation on the server.
+#}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}RepRequest{% endblock %}</title>
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+    {% block head_extra %}{% endblock %}
+</head>
+
+<body>
+
+    {% include "partials/_topbar.html" %}
+
+    <main class="page {% block page_class %}{% endblock %}">
+
+        {% include "partials/_flashes.html" %}
+
+        {% block content %}{% endblock %}
+
+    </main>
+
+    {% include "partials/_footer.html" %}
+
+</body>
+
+</html>
