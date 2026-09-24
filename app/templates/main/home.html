@@ -1,0 +1,312 @@
+{#
+    Public home page.
+
+    This is the only page a visitor sees before signing in, so it has to explain
+    what RepRequest is and route the visitor to either registration or login.
+#}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RepRequest - Repair tracking for company machinery</title>
+    <meta name="description"
+          content="RepRequest lets crew members report a machine fault by scanning a QR code, and gives technicians one queue to work from.">
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    {% include "partials/_topbar.html" %}
+
+    <!-- ============================ HERO ============================ -->
+    <section class="hero">
+        <div class="hero__inner">
+
+            <div>
+                <span class="hero__pill">
+                    <span class="dot" aria-hidden="true"></span>
+                    Built for machine shops and manufacturers
+                </span>
+
+                <h1>
+                    When a machine goes down,
+                    <span class="accent">everyone knows in seconds.</span>
+                </h1>
+
+                <p class="hero__lede">
+                    RepRequest turns a broken CNC machine into a tracked repair request
+                    in three taps. A crew member scans the QR label on the machine,
+                    picks a severity, and describes the problem. Your technicians pick
+                    it up from one queue &mdash; and every repair is kept as permanent
+                    service history for that machine.
+                </p>
+
+                <div class="btn-row">
+                    <a class="btn btn--primary btn--lg"
+                       href="{{ url_for('auth.register') }}">
+                        Register your company
+                    </a>
+                    <a class="btn btn--secondary btn--lg"
+                       href="{{ url_for('auth.login') }}">
+                        Log in
+                    </a>
+                </div>
+
+                <div class="hero__meta">
+                    <div>
+                        <strong>3 taps</strong>
+                        <span>from scan to logged request</span>
+                    </div>
+                    <div>
+                        <strong>One queue</strong>
+                        <span>sorted by severity</span>
+                    </div>
+                    <div>
+                        <strong>Full history</strong>
+                        <span>kept per machine, forever</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- a small mock of the repair queue, to show rather than tell -->
+            <div class="mock" aria-hidden="true">
+                <div class="mock__bar">
+                    <i></i><i></i><i></i>
+                    <span>reprequest.app/repairs/queue</span>
+                </div>
+                <div class="mock__body">
+
+                    <div class="mock__row">
+                        <span class="avatar">HX</span>
+                        <span class="machine">
+                            <b>Haas VF-2 &middot; Bay 3</b>
+                            <span>Spindle alarm on startup</span>
+                        </span>
+                        <span class="badge badge--high">High</span>
+                    </div>
+
+                    <div class="mock__row">
+                        <span class="avatar">OK</span>
+                        <span class="machine">
+                            <b>Okuma Genos L250 &middot; Bay 1</b>
+                            <span>Coolant line leaking at fitting</span>
+                        </span>
+                        <span class="badge badge--medium">Medium</span>
+                    </div>
+
+                    <div class="mock__row">
+                        <span class="avatar">BP</span>
+                        <span class="machine">
+                            <b>Bridgeport Mill &middot; Bay 7</b>
+                            <span>Work light out</span>
+                        </span>
+                        <span class="badge badge--low">Low</span>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ========================== FEATURES ========================== -->
+    <section class="features" id="features">
+        <div class="page" style="padding-top:0; padding-bottom:0;">
+
+            <div class="section-head">
+                <h2>Everything a small maintenance team actually needs</h2>
+                <p>
+                    No training required for the people on the floor. They point a
+                    phone camera at a sticker.
+                </p>
+            </div>
+
+            <div class="grid grid--3">
+
+                <div class="feature">
+                    <span class="feature__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+                            <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                            <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                            <path d="M14 14h3v3h-3zM20 14v3M17 20h4"/>
+                        </svg>
+                    </span>
+                    <h3>Scan-to-report</h3>
+                    <p>
+                        Every machine carries a QR label. Scanning it opens a form that
+                        already knows which machine it is, so nobody types an asset tag
+                        wrong or reports the wrong lathe.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <span class="feature__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 3 3 7.5v5c0 5 3.8 8.2 9 8.5 5.2-.3 9-3.5 9-8.5v-5L12 3z"/>
+                            <path d="m9 12 2 2 4-4"/>
+                        </svg>
+                    </span>
+                    <h3>Severity that means something</h3>
+                    <p>
+                        Low, medium or high &mdash; chosen by the person standing at the
+                        machine. The queue sorts itself, so the press that stopped the
+                        line outranks the flickering work light.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <span class="feature__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 6h16M4 12h10M4 18h7"/>
+                            <circle cx="18" cy="16.5" r="3.5"/>
+                            <path d="M18 15v1.7l1.2.8"/>
+                        </svg>
+                    </span>
+                    <h3>One queue per company</h3>
+                    <p>
+                        Technicians claim a request, move it to In Progress, and close it
+                        as Repair Complete or mark the machine Down. Nothing gets lost in
+                        a group chat.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <span class="feature__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 4h11l5 5v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/>
+                            <path d="M14 4v6h6M8 14h8M8 17.5h5"/>
+                        </svg>
+                    </span>
+                    <h3>Permanent service history</h3>
+                    <p>
+                        A repair cannot be closed without a maintenance log: what was done,
+                        which parts went in, how many hours. Two years later you can still
+                        see why that spindle keeps failing.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <span class="feature__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="9" cy="8" r="3.2"/>
+                            <path d="M3 20c0-3.3 2.7-5.4 6-5.4s6 2.1 6 5.4"/>
+                            <path d="M17 11h4M19 9v4"/>
+                        </svg>
+                    </span>
+                    <h3>Roles, not guesswork</h3>
+                    <p>
+                        Crew members report. Technicians repair. Administrators manage
+                        accounts. Each person sees exactly the tabs their job needs and
+                        nothing else.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <span class="feature__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="4" y="10.5" width="16" height="10" rx="2"/>
+                            <path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/>
+                            <path d="M12 14.5v2"/>
+                        </svg>
+                    </span>
+                    <h3>Your data stays yours</h3>
+                    <p>
+                        Every company is isolated from every other company on the platform.
+                        A request, a machine or an employee is only ever visible to the
+                        company that owns it.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ========================= HOW IT WORKS ======================== -->
+    <section class="steps" id="how">
+        <div class="page" style="padding-top:0; padding-bottom:0;">
+
+            <div class="section-head">
+                <h2>How it works</h2>
+                <p>Four steps, from a fault on the floor to a closed repair with a paper trail.</p>
+            </div>
+
+            <div class="grid grid--4">
+
+                <div class="step step--active">
+                    <span class="step__n">STEP 01</span>
+                    <h3>Register your company</h3>
+                    <p>
+                        The owner creates the company account and becomes its
+                        administrator, then adds crew members and technicians.
+                    </p>
+                </div>
+
+                <div class="step">
+                    <span class="step__n">STEP 02</span>
+                    <h3>Label your machines</h3>
+                    <p>
+                        Add each machine to the registry and print its QR label. Stick it
+                        somewhere the operator can reach.
+                    </p>
+                </div>
+
+                <div class="step">
+                    <span class="step__n">STEP 03</span>
+                    <h3>Crew reports a fault</h3>
+                    <p>
+                        Scan, choose a severity, describe the problem. The request lands in
+                        the queue instantly.
+                    </p>
+                </div>
+
+                <div class="step">
+                    <span class="step__n">STEP 04</span>
+                    <h3>Technician closes it out</h3>
+                    <p>
+                        Claim it, fix it, file the maintenance log. The machine goes back
+                        to operational with its history updated.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ============================ CTA ============================= -->
+    <section class="cta">
+        <div class="cta__inner">
+            <h2>Stop tracking repairs on a whiteboard</h2>
+            <p>
+                Set up your company in a couple of minutes. Add your team, label your
+                machines, and give your technicians one place to work from.
+            </p>
+            <div class="btn-row" style="justify-content:center;">
+                <a class="btn btn--primary btn--lg"
+                   href="{{ url_for('auth.register') }}">
+                    Register your company
+                </a>
+                <a class="btn btn--secondary btn--lg"
+                   href="{{ url_for('auth.login') }}">
+                    I already have an account
+                </a>
+            </div>
+        </div>
+    </section>
+
+    {% include "partials/_footer.html" %}
+
+</body>
+
+</html>

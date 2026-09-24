@@ -1,0 +1,114 @@
+{#
+    Application navigation bar.
+
+    Tabs are shown according to the current user's role, but this is a
+    convenience only: app/authorization.py enforces the same rules on the
+    server for every route listed here.
+#}
+<header class="topbar">
+    <div class="topbar__inner">
+
+        <a class="brand"
+           href="{{ url_for('main.dashboard') if current_user.is_authenticated
+                   else url_for('main.home') }}">
+            <span class="brand__mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2.2" stroke-linecap="round"
+                     stroke-linejoin="round">
+                    <path d="M14.7 6.3a4 4 0 0 0 5 5l-9 9a2.8 2.8 0 0 1-4-4l9-9z"/>
+                    <path d="M14.7 6.3 18 3l3 3-3.3 3.3"/>
+                </svg>
+            </span>
+            RepRequest
+        </a>
+
+        {% if current_user.is_authenticated %}
+
+            {% set is_admin = current_user.is_company_admin %}
+            {% set is_tech  = current_user.role == 'employee-technician' %}
+            {% set can_service = is_admin or is_tech %}
+
+            <nav class="nav" aria-label="Primary">
+
+                <a class="nav__link {% if request.blueprint == 'main' %}is-active{% endif %}"
+                   href="{{ url_for('main.dashboard') }}">
+                    <span class="dot" aria-hidden="true"></span>
+                    Dashboard
+                </a>
+
+                {% if is_admin %}
+                    <a class="nav__link {% if request.blueprint == 'admin' %}is-active{% endif %}"
+                       href="{{ url_for('admin.dashboard') }}">
+                        <span class="dot" aria-hidden="true"></span>
+                        Company Administration
+                    </a>
+                {% endif %}
+
+                {% if can_service %}
+                    <a class="nav__link {% if request.blueprint == 'machines' %}is-active{% endif %}"
+                       href="{{ url_for('machines.index') }}">
+                        <span class="dot" aria-hidden="true"></span>
+                        Manage Machines
+                    </a>
+
+                    <a class="nav__link {% if request.blueprint == 'repairs' %}is-active{% endif %}"
+                       href="{{ url_for('repairs.index') }}">
+                        <span class="dot" aria-hidden="true"></span>
+                        Requests
+                    </a>
+
+                    <a class="nav__link {% if request.blueprint == 'logs' %}is-active{% endif %}"
+                       href="{{ url_for('logs.index') }}">
+                        <span class="dot" aria-hidden="true"></span>
+                        Maintenance Logs
+                    </a>
+                {% endif %}
+
+            </nav>
+
+            <div class="topbar__actions">
+
+                <div class="userchip">
+                    <span class="avatar" aria-hidden="true">
+                        {{ current_user.first_name[0] }}{{ current_user.last_name[0] }}
+                    </span>
+                    <span class="userchip__text">
+                        <span class="userchip__name">
+                            {{ current_user.first_name }} {{ current_user.last_name }}
+                        </span>
+                        <span class="userchip__role">
+                            {{ current_user.role_label }}
+                        </span>
+                    </span>
+                </div>
+
+                <form class="logout-form"
+                      method="POST"
+                      action="{{ url_for('auth.logout') }}">
+                    <button type="submit" class="btn btn--ghost btn--sm">
+                        Sign out
+                    </button>
+                </form>
+
+            </div>
+
+        {% else %}
+
+            <nav class="nav" aria-label="Primary">
+                <a class="nav__link" href="{{ url_for('main.home') }}#features">Features</a>
+                <a class="nav__link" href="{{ url_for('main.home') }}#how">How it works</a>
+            </nav>
+
+            <div class="topbar__actions">
+                <a class="btn btn--ghost btn--sm" href="{{ url_for('auth.login') }}">
+                    Log in
+                </a>
+                <a class="btn btn--primary btn--sm" href="{{ url_for('auth.register') }}">
+                    Register your company
+                </a>
+            </div>
+
+        {% endif %}
+
+    </div>
+</header>

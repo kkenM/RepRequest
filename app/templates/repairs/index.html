@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Requests - RepRequest{% endblock %}
+
+{% block content %}
+
+    <div class="page-head">
+        <div class="page-head__text">
+            <span class="eyebrow">Repair queue</span>
+            <h1>Requests</h1>
+            <p class="page-head__sub">
+                Incoming repair requests for {{ current_user.company.name }}, ordered
+                by severity so the most urgent machine is always at the top.
+            </p>
+        </div>
+        <span class="badge badge--soon">Coming soon</span>
+    </div>
+
+    {% set feature_title = "The repair queue is not built yet" %}
+    {% set feature_lede =
+        "This is where a technician will pick up the requests crew members submit
+         after scanning a machine, claim them, and move them through the repair
+         workflow until the machine is back in service." %}
+    {% set feature_points = [
+        "Queue filtered by machine, severity and status",
+        "Claim a request and move it to In Progress",
+        "Close as Repair Complete, or mark the machine Down"
+    ] %}
+    {% include "partials/_coming_soon.html" %}
+
+{% endblock %}
