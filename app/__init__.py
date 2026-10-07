@@ -9,6 +9,7 @@ Do not place feature-specific routes or business logic in this module.
 Feature behavior should live in Blueprints and services.
 """
 
+from datetime import datetime
 from pathlib import Path
 
 from flask import Flask
@@ -46,11 +47,24 @@ def create_app(config_class=Config):
     from app.main.routes import main_bp
     from app.auth.routes import auth_bp
     from app.admin.routes import admin_bp
+    from app.machines.routes import machines_bp
+    from app.repairs.routes import repairs_bp
+    from app.logs.routes import logs_bp
 
     # Register application feature modules
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(machines_bp)
+    app.register_blueprint(repairs_bp)
+    app.register_blueprint(logs_bp)
+
+    # Values every template may use, such as the footer copyright year.
+    @app.context_processor
+    def inject_template_globals():
+        return {
+            "now_year": datetime.utcnow().year
+        }
 
     # Register application-wide error handling
     from app.errors import register_error_handlers
