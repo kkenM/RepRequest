@@ -1,47 +1,145 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% block title %}Dashboard - RepRequest{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Dashboard - RepRequest</title>
-</head>
+{% block content %}
 
-<body>
+    {% set is_admin = current_user.is_company_admin %}
+    {% set is_tech  = current_user.role == 'employee-technician' %}
 
-    <h1>RepRequest Dashboard</h1>
+    <div class="page-head">
+        <div class="page-head__text">
+            <span class="eyebrow">{{ current_user.company.name }}</span>
+            <h1>Welcome back, {{ current_user.first_name }}</h1>
+            <p class="page-head__sub">
+                {% if is_admin %}
+                    You have full administrator access to this company account.
+                {% elif is_tech %}
+                    You can work the repair queue and file maintenance logs.
+                {% else %}
+                    Scan a machine's QR label to report a fault.
+                {% endif %}
+            </p>
+        </div>
+        <span class="badge badge--{{ 'admin' if is_admin
+                                     else 'technician' if is_tech
+                                     else 'crew' }}">
+            {{ current_user.role_label }}
+        </span>
+    </div>
 
-    <h2>Welcome, {{ current_user.first_name }}!</h2>
+    <!-- account summary --------------------------------------------------- -->
+    <div class="grid grid--3 section">
 
-    <p>
-        Company:
-        {{ current_user.company.name }}
-    </p>
+        <div class="stat">
+            <p class="stat__label">Company</p>
+            <p class="stat__value stat__value--sm">{{ current_user.company.name }}</p>
+        </div>
 
-    <p>
-        Name:
-        {{ current_user.first_name }}
-        {{ current_user.last_name }}
-    </p>
+        <div class="stat">
+            <p class="stat__label">Signed in as</p>
+            <p class="stat__value stat__value--sm">
+                {{ current_user.first_name }} {{ current_user.last_name }}
+            </p>
+        </div>
 
-    <p>
-        Email:
-        {{ current_user.email }}
-    </p>
+        <div class="stat">
+            <p class="stat__label">Email</p>
+            <p class="stat__value stat__value--sm">{{ current_user.email }}</p>
+        </div>
 
-{% if current_user.is_company_admin %}
-    <p>
-        <a href="{{ url_for('admin.dashboard') }}">
-           Company Administration
-        </a>
-    </p>
-{% endif %}
+    </div>
 
-    <form method="POST" action="{{ url_for('auth.logout') }}">
-        <button type="submit">
-            Logout
-        </button>
-    </form>
+    <!-- shortcuts --------------------------------------------------------- -->
+    <section class="section">
 
-</body>
+        <div class="section__head">
+            <h2>Your tools</h2>
+            <p class="page-head__sub mb-0">
+                The same destinations as the tabs above.
+            </p>
+        </div>
 
-</html>
+        <div class="grid grid--3">
+
+            {% if is_admin %}
+                <a class="feature" href="{{ url_for('admin.dashboard') }}">
+                    <span class="feature__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="9" cy="8" r="3.2"/>
+                            <path d="M3 20c0-3.3 2.7-5.4 6-5.4s6 2.1 6 5.4"/>
+                            <path d="M17 11h4M19 9v4"/>
+                        </svg>
+                    </span>
+                    <h3>Company Administration</h3>
+                    <p>Create, edit and remove employee accounts for your company.</p>
+                </a>
+            {% endif %}
+
+            {% if is_admin or is_tech %}
+
+                <a class="feature" href="{{ url_for('machines.index') }}">
+                    <span class="feature__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+                            <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                            <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                            <path d="M14 14h3v3h-3zM20 14v3M17 20h4"/>
+                        </svg>
+                    </span>
+                    <h3>Manage Machines <span class="badge badge--soon">Soon</span></h3>
+                    <p>Register machines and print the QR labels crew members scan.</p>
+                </a>
+
+                <a class="feature" href="{{ url_for('repairs.index') }}">
+                    <span class="feature__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 6h16M4 12h10M4 18h7"/>
+                            <circle cx="18" cy="16.5" r="3.5"/>
+                            <path d="M18 15v1.7l1.2.8"/>
+                        </svg>
+                    </span>
+                    <h3>Requests <span class="badge badge--soon">Soon</span></h3>
+                    <p>Work the incoming repair queue, sorted by severity.</p>
+                </a>
+
+                <a class="feature" href="{{ url_for('logs.index') }}">
+                    <span class="feature__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 4h11l5 5v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/>
+                            <path d="M14 4v6h6M8 14h8M8 17.5h5"/>
+                        </svg>
+                    </span>
+                    <h3>Maintenance Logs <span class="badge badge--soon">Soon</span></h3>
+                    <p>Read the full service history recorded for each machine.</p>
+                </a>
+
+            {% else %}
+
+                <div class="feature">
+                    <span class="feature__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+                            <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                            <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                            <path d="M14 14h3v3h-3zM20 14v3M17 20h4"/>
+                        </svg>
+                    </span>
+                    <h3>Report a fault <span class="badge badge--soon">Soon</span></h3>
+                    <p>
+                        Scan the QR label on a machine with your phone camera to open
+                        its repair form. Available once the machine registry is built.
+                    </p>
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+{% endblock %}

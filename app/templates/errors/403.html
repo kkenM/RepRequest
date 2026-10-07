@@ -1,22 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% block title %}Access denied - RepRequest{% endblock %}
+{% block page_class %}page--narrow{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>Access Denied - RepRequest</title>
-</head>
+{% block content %}
 
-<body>
-  <h1>Access Denied</h1>
+    <div class="card">
+        <div class="empty">
 
-  <p>
-    You do not have permission to access this page.
-  </p>
+            <span class="empty__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="10.5" width="16" height="10" rx="2"/>
+                    <path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/>
+                    <path d="M12 14.5v2"/>
+                </svg>
+            </span>
 
-  <a href="{{ url_for('main.dashboard') }}">
-    Return to Dashboard
-  </a>
+            <h3>Access denied</h3>
+            <p>
+                Your account does not have permission to open this page. If you think
+                that is wrong, ask your company administrator to check your role.
+            </p>
 
-</body>
+            <a class="btn btn--primary" href="{{ url_for('main.dashboard') }}">
+                Back to dashboard
+            </a>
 
-</html>
+        </div>
+    </div>
+
+{% endblock %}

@@ -3,44 +3,76 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Login - RepRequest</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Log in - RepRequest</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 <body>
 
-    <h1>RepRequest Login</h1>
+    {% include "partials/_topbar.html" %}
 
-    {% if error %}
-        <p>{{ error }}</p>
-    {% endif %}
+    <div class="auth">
+        <div class="auth__card">
 
-    <form method="POST">
+            <div class="auth__head">
+                <h1>Welcome back</h1>
+                <p>Sign in to your RepRequest account.</p>
+            </div>
 
-        <label for="email">Email:</label>
-        <input
-            type="email"
-            id="email"
-            name="email"
-            required
-        >
+            {% if error %}
+                <div class="alert alert--error" role="alert">
+                    <span class="alert__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 8v5M12 16h.01"/>
+                        </svg>
+                    </span>
+                    <span>{{ error }}</span>
+                </div>
+            {% endif %}
 
-        <br><br>
+            <form class="form" method="POST">
 
-        <label for="password">Password:</label>
-        <input
-            type="password"
-            id="password"
-            name="password"
-            required
-        >
+                <div class="form__group">
+                    <label class="form__label" for="email">Email address</label>
+                    <input class="form__control"
+                           type="email"
+                           id="email"
+                           name="email"
+                           autocomplete="username"
+                           placeholder="you@company.com"
+                           required>
+                </div>
 
-        <br><br>
+                <div class="form__group">
+                    <label class="form__label" for="password">Password</label>
+                    <input class="form__control"
+                           type="password"
+                           id="password"
+                           name="password"
+                           autocomplete="current-password"
+                           placeholder="Enter your password"
+                           required>
+                </div>
 
-        <button type="submit">
-            Login
-        </button>
+                <button type="submit" class="btn btn--primary btn--block btn--lg">
+                    Log in
+                </button>
 
-    </form>
+            </form>
+
+            <p class="auth__foot">
+                Don't have a company account yet?
+                <a href="{{ url_for('auth.register') }}">Register your company</a>
+            </p>
+
+        </div>
+    </div>
+
+    {% include "partials/_footer.html" %}
 
 </body>
 
