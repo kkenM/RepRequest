@@ -21,6 +21,7 @@
                 <p>Sign in to your RepRequest account.</p>
             </div>
 
+            {% include "partials/_flashes.html" %}
             {% if error %}
                 <div class="alert alert--error" role="alert">
                     <span class="alert__icon" aria-hidden="true">
@@ -73,6 +74,15 @@
     </div>
 
     {% include "partials/_footer.html" %}
+
+    <script>
+        // If browser restores page from memory, clear the form
+        window.addEventListener("pageshow", function (event) {
+            if (event.persisted) {
+                document.querySelector("form.form").reset()
+            }
+        });
+    </script>
 
 </body>
 

@@ -10,9 +10,11 @@ they are not specifically concerned with HTTP requests or sessions.
 
 from flask import (
     Blueprint,
+    flash,
     redirect,
     render_template,
     request,
+    session,
     url_for
 )
 
@@ -23,8 +25,7 @@ from flask_login import (
     logout_user
 )
 
-from app.extensions import db, login_manager
-from app.models import User
+from app.extensions import login_manager
 from app.services import (
     company_service,
     user_service
@@ -39,16 +40,14 @@ auth_bp = Blueprint(
 
 
 @login_manager.user_loader
-def load_user(user_id):
+def load_user(session_token):
     """
-    Reload the authenticated user using the ID stored
-    in the Flask session.
+    Reload the authenticated user from the session token stored
+    in the cookie. Returning None makes Flask-Login treat user
+    as signed out.
     """
 
-    return db.session.get(
-        User,
-        int(user_id)
-    )
+    return user_service.get_user_by_session_token(session_token)
 
 
 @auth_bp.route(
@@ -129,7 +128,14 @@ def login():
         )
 
         if user:
+
+            # Drop anything stored before login.
+            session.clear()
+
             login_user(user)
+
+            # Expire after PERMANENT_SESSION_LIFETIME.
+            session.permanent = True
 
             return redirect(
                 url_for("main.dashboard")
@@ -149,13 +155,36 @@ def login():
     "/logout",
     methods=["POST"]
 )
-@login_required
 def logout():
     """
     End the current authenticated session.
     """
 
     logout_user()
+    session.clear()
+
+    return redirect(url_for("auth.login"))
+
+
+@auth_bp.route(
+    "/logout/all",
+    methods=["POST"]
+)
+@login_required
+def logout_all():
+    """
+    End the current user's session on all devices.
+    """
+
+    user_service.end_all_sessions(current_user)
+
+    logout_user()
+    session.clear()
+
+    flash(
+        "Signed out on all devices."
+        "Success"
+    )
 
     return redirect(
         url_for("auth.login")

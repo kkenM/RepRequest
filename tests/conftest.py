@@ -6,6 +6,7 @@ modify the developer's normal instance/accounts.db database.
 """
 
 import pytest
+from flask import g
 
 from app import create_app
 from app.extensions import db
@@ -22,6 +23,16 @@ def app():
     test_app = create_app(
         TestingConfig
     )
+
+    """
+    The fixture keeps one app context open for the whole test, so
+    Flask's `g` would otherwise be shared by every request. Clear
+    Flask-Login's cached user after each request so the next one
+    reloads the user from its own session cookie, as in production  
+    """
+    @test_app.teardown_request
+    def forget_cached_user(error):
+        g.pop("_login_user", None)
 
     with test_app.app_context():
 

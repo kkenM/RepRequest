@@ -49,6 +49,16 @@
 
     </div>
 
+    <section class="section">
+        <form class="logout-form"
+            method="POST"
+            action="{{ url_for('auth.logout_all') }}">
+            <button type="submit" class="btn btn--ghost btn--sm">
+                Sign out of all devices
+            </button>
+        </form>
+    </section>
+
     <!-- shortcuts --------------------------------------------------------- -->
     <section class="section">
 

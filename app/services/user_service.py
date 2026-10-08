@@ -52,6 +52,28 @@ def authenticate_user(email, password):
     return None
 
 
+def get_user_by_session_token(session_token):
+    """
+    Return the user that owns a session token, or None
+    when the token was rotated or the account deleted.
+    """
+
+    if not session_token:
+        return None
+
+    return User.query.filter_by(session_token=session_token).first()
+
+
+def end_all_sessions(user):
+    """
+    Sign a user out of every device.
+    """
+
+    user.rotate_session_token()
+
+    db.session.commit()
+
+
 def get_company_employees(company_id):
     """
     Return employee accounts belonging to one company.
