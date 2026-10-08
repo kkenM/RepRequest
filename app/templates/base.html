@@ -21,6 +21,7 @@
         rel="stylesheet"
         href="{{ url_for('static', filename='css/style.css') }}"
     >
+    {% include "partials/_head_icons.html" %}
     {% block head_extra %}{% endblock %}
 </head>
 

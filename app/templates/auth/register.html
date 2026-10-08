@@ -7,6 +7,7 @@
     <title>Register your company - RepRequest</title>
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/style.css') }}">
+    {% include "partials/_head_icons.html" %}
 </head>
 
 <body>
@@ -15,6 +16,11 @@
 
     <div class="auth">
         <div class="auth__card auth__card--wide">
+
+            <img class="auth__logo"
+                 src="{{ url_for('static', filename='img/logo.png') }}"
+                 alt="RepRequest - Machine Management Software"
+                 width="1200" height="310">
 
             <div class="auth__head">
                 <h1>Register your company</h1>
