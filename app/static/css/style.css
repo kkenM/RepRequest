@@ -265,20 +265,10 @@ a:hover { color: var(--primary-hover); }
 .brand:hover { color: var(--ink); }
 
 .brand__mark {
-    display: grid;
-    place-items: center;
-    width: 34px;
-    height: 34px;
-    border-radius: var(--r-md);
-    background: linear-gradient(135deg, var(--indigo-500), var(--indigo-700));
-    box-shadow: var(--shadow-primary);
-    color: #fff;
-    font-size: 0.8125rem;
-    font-weight: 800;
-    letter-spacing: -0.03em;
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
 }
-
-.brand__mark svg { width: 18px; height: 18px; }
 
 /* primary nav ------------------------------------------------------------ */
 .nav {
@@ -780,6 +770,14 @@ select.form__control {
 }
 
 .auth__card--wide { max-width: 620px; }
+
+.auth__logo {
+    display: block;
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+    margin: 0 auto var(--sp-5);
+}
 
 .auth__head {
     margin-bottom: var(--sp-5);
