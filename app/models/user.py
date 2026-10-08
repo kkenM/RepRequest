@@ -5,6 +5,7 @@ Every authenticated RepRequest user belongs to one Company.
 User roles determine what functionality the account may access.
 """
 
+import secrets
 from datetime import datetime
 
 from flask_login import UserMixin
@@ -19,6 +20,12 @@ from app.roles import (
     EMPLOYEE_ROLES,
     ROLE_LABELS
 )
+
+def generate_session_token():
+    """
+    Return a new random, URL-safe session token.
+    """
+    return secrets.token_urlsafe(32)
 
 class User(UserMixin, db.Model):
     """
@@ -69,6 +76,30 @@ class User(UserMixin, db.Model):
         default=datetime.utcnow
     )
 
+    # Flask-login stores this in the session cookie
+    session_token = db.Column(
+        db.String(64),
+        unique=True,
+        nullable=False,
+        default=generate_session_token
+    )
+
+    def get_id(self):
+        """
+        Return the value Flask-Login stores in the session cookie.
+        Overrides UserMixin.get_id(), which would return self.id.
+        """
+
+        return self.session_token
+
+    def rotate_session_token(self):
+        """
+        Invalidate every existing session for this user.
+        The caller must commit the change.
+        """
+
+        self.session_token = generate_session_token()
+
     def set_password(self, password):
         """
         Securely hash and store a user's password.
@@ -77,6 +108,8 @@ class User(UserMixin, db.Model):
         self.password_hash = generate_password_hash(
             password
         )
+
+        self.rotate_session_token()
 
     def check_password(self, password):
         """

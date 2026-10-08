@@ -12,7 +12,7 @@ Feature behavior should live in Blueprints and services.
 from datetime import datetime
 from pathlib import Path
 
-from flask import Flask
+from flask import Flask, request
 
 from config import Config
 from app.extensions import db, login_manager, migrate
@@ -66,6 +66,14 @@ def create_app(config_class=Config):
             "now_year": datetime.utcnow().year
         }
 
+
+    # SECURITY: Don't let browser keep caches of pages
+    @app.after_request
+    def prevent_page_caching(response):
+        if request.endpoint != "static":
+            response.headers["Cache-Control"] = "no-store"
+        return response
+
     # Register application-wide error handling
     from app.errors import register_error_handlers
     register_error_handlers(app)
@@ -74,7 +82,17 @@ def create_app(config_class=Config):
     # before creating database tables.
     from app.models import Company, User
 
-    # Temporary database initialization.
-    # Flask-Migrate will replace this in a later step.
+    '''
+    # SECURITY: Prevents public sign session cookies
+    # ENABLE LATER
+    if (
+        not app.debug
+        and not app.testing
+        and app.config["SECRET_KEY"] == "dev-secret-key-change-before-production"
+    ):
+        raise RuntimeError(
+            "Set the SECRET_KEY environment variable before running in production"
+        )
+    '''
 
     return app
