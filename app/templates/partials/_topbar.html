@@ -11,14 +11,10 @@
         <a class="brand"
            href="{{ url_for('main.dashboard') if current_user.is_authenticated
                    else url_for('main.home') }}">
-            <span class="brand__mark" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="2.2" stroke-linecap="round"
-                     stroke-linejoin="round">
-                    <path d="M14.7 6.3a4 4 0 0 0 5 5l-9 9a2.8 2.8 0 0 1-4-4l9-9z"/>
-                    <path d="M14.7 6.3 18 3l3 3-3.3 3.3"/>
-                </svg>
-            </span>
+            <img class="brand__mark"
+                 src="{{ url_for('static', filename='img/logo-mark.png') }}"
+                 alt=""
+                 width="36" height="36">
             RepRequest
         </a>
 
