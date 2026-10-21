@@ -48,6 +48,7 @@ def create_app(config_class=Config):
     from app.auth.routes import auth_bp
     from app.admin.routes import admin_bp
     from app.machines.routes import machines_bp
+    from app.scan import scan_bp
     from app.repairs.routes import repairs_bp
     from app.logs.routes import logs_bp
 
@@ -56,6 +57,7 @@ def create_app(config_class=Config):
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(machines_bp)
+    app.register_blueprint(scan_bp)
     app.register_blueprint(repairs_bp)
     app.register_blueprint(logs_bp)
 
@@ -80,7 +82,7 @@ def create_app(config_class=Config):
 
     # Ensure SQLAlchemy knows about all RepRequest models
     # before creating database tables.
-    from app.models import Company, User
+    from app.models import Company, User, Machine
 
     '''
     # SECURITY: Prevents public sign session cookies

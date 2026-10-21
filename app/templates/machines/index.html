@@ -1,30 +1,55 @@
 {% extends "base.html" %}
-{% block title %}Manage Machines - RepRequest{% endblock %}
 
 {% block content %}
+<div class="mc-wrap">
 
-    <div class="page-head">
-        <div class="page-head__text">
-            <span class="eyebrow">Machine registry</span>
-            <h1>Manage Machines</h1>
-            <p class="page-head__sub">
-                Register the machines {{ current_user.company.name }} owns and print
-                the QR label that crew members scan to report a fault.
-            </p>
-        </div>
-        <span class="badge badge--soon">Coming soon</span>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+    <h1 style="margin:0; font-size:1.5rem;">Machines</h1>
+
+    {% if is_admin and machines %}
+      <a class="mc-btn mc-btn-primary" href="{{ url_for('machines.create') }}">Add machine</a>
+    {% endif %}
+  </div>
+
+  {% if machines %}
+    <div class="mc-card" style="padding:0.25rem 1.25rem;">
+      <table style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr style="text-align:left; color:#6b7280; font-size:0.8rem;">
+            <th style="padding:0.75rem 0;">Name</th>
+            <th style="padding:0.75rem 0;">Machine ID</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for machine in machines %}
+            <tr style="border-top:1px solid #e5e7eb;">
+              <td style="padding:0.75rem 0;">
+                <a href="{{ url_for('machines.detail', machine_id=machine.id) }}">
+                  {{ machine.name }}
+                </a>
+              </td>
+              <td style="padding:0.75rem 0; font-family:monospace; font-size:0.85rem; color:#6b7280;">
+                {{ machine.public_id }}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
+  {% else %}
+    <div class="mc-card" style="text-align:center; padding:2rem 1.25rem;">
+      <p style="margin:0 0 0.25rem; font-size:1.1rem; font-weight:600;">No machines yet</p>
 
-    {% set feature_title = "The machine registry is not built yet" %}
-    {% set feature_lede =
-        "This is where you will add each CNC machine, press or lathe your company
-         owns, keep its asset tag and location up to date, and print the QR label
-         that opens the repair form for that exact machine." %}
-    {% set feature_points = [
-        "Register a machine with asset tag, name and location",
-        "Generate and print a unique QR label per machine",
-        "Track machine status: operational, action needed, in progress, down"
-    ] %}
-    {% include "partials/_coming_soon.html" %}
+      {% if is_admin %}
+        <p class="mc-hint" style="margin-bottom:1rem;">Add your first machine to get its QR code.</p>
+        <a class="mc-btn mc-btn-primary" href="{{ url_for('machines.create') }}">
+          Add your first machine
+        </a>
+      {% else %}
+        <p class="mc-hint">Your company administrator hasn't added any machines yet.</p>
+      {% endif %}
+    </div>
+  {% endif %}
 
+</div>
 {% endblock %}

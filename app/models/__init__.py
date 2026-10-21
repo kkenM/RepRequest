@@ -11,9 +11,11 @@ Example:
 
 from app.models.company import Company
 from app.models.user import User
+from app.models.machine import Machine
 
 
 __all__ = [
     "Company",
-    "User"
+    "User",
+    "Machine"
 ]

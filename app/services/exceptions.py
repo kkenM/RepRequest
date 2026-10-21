@@ -29,3 +29,6 @@ class InvalidEmployeeRoleError(ServiceError):
     """
 
     pass
+
+class DuplicateAssetTagError(Exception):
+    """Asset tag is already used by another machine in this company."""
