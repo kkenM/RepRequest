@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="label-page">
+
+  <div class="label-actions">
+    <a class="mc-btn" href="{{ url_for('machines.detail', machine_id=machine.id) }}">
+      &larr; Back to machine
+    </a>
+    <button type="button" class="mc-btn mc-btn-primary" onclick="window.print()">
+      Print
+    </button>
+  </div>
+
+  <div class="label-sheet">
+    <div class="label-name">{{ machine.name }}</div>
+
+    <img class="label-qr"
+         src="{{ url_for('machines.qr_image', machine_id=machine.id) }}"
+         alt="QR code for {{ machine.name }}">
+  </div>
+
+</div>
+{% endblock %}

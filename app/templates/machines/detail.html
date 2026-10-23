@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="mc-wrap">
+
+  <a class="mc-back" href="{{ url_for('machines.index') }}">&larr; All machines</a>
+
+  <div class="mc-card mc-detail">
+
+    <img class="mc-qr-img"
+         src="{{ url_for('machines.qr_image', machine_id=machine.id) }}"
+         alt="QR code for {{ machine.name }}"
+         width="160" height="160">
+
+    <div class="mc-info">
+      <h1 class="mc-name">{{ machine.name }}</h1>
+      <p class="mc-id">ID: {{ machine.public_id }}</p>
+
+      <div class="mc-buttons">
+        <a class="mc-btn mc-btn-primary"
+           href="{{ url_for('machines.label', machine_id=machine.id) }}">Print label</a>
+
+        {% if is_admin %}
+          <a class="mc-btn"
+             href="{{ url_for('machines.qr_image', machine_id=machine.id, download=1) }}">Download</a>
+
+          <details class="mc-menu">
+            <summary class="mc-btn">More &#9662;</summary>
+            <div class="mc-menu-list">
+              <a class="mc-menu-item"
+                 href="{{ url_for('machines.edit', machine_id=machine.id) }}">Rename</a>
+
+              <form method="post"
+                    action="{{ url_for('machines.delete', machine_id=machine.id) }}"
+                    onsubmit="return confirm('Delete this machine? Its printed QR label will stop working.');">
+                <button type="submit" class="mc-menu-item mc-menu-danger">Delete</button>
+              </form>
+            </div>
+          </details>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
