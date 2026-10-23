@@ -45,3 +45,5 @@ class Company(db.Model):
         backref="company",
         lazy=True
     )
+
+    machines = db.relationship("Machine", backref="company", lazy=True)
