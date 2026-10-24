@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="mc-wrap mc-wrap-small">
+
+  <a class="mc-back"
+     href="{% if machine %}{{ url_for('machines.detail', machine_id=machine.id) }}{% else %}{{ url_for('machines.index') }}{% endif %}">
+    &larr; Back
+  </a>
+
+  <form class="mc-card"
+        method="post"
+        action="{% if machine %}{{ url_for('machines.edit', machine_id=machine.id) }}{% else %}{{ url_for('machines.create') }}{% endif %}">
+
+    <h1 class="mc-title">{% if machine %}Rename machine{% else %}Add machine{% endif %}</h1>
+
+    <label class="mc-label" for="name">Machine name</label>
+    <input class="mc-input" type="text" id="name" name="name"
+           maxlength="100" required autofocus
+           placeholder="e.g. Haas VF-2 Mill"
+           value="{{ name }}">
+
+    {% if not machine %}
+      <p class="mc-hint">An ID and QR code are created automatically.</p>
+    {% endif %}
+
+    <div class="mc-actions">
+      <button type="submit" class="mc-btn mc-btn-primary">
+        {% if machine %}Save{% else %}Create machine{% endif %}
+      </button>
+      <a class="mc-btn"
+         href="{% if machine %}{{ url_for('machines.detail', machine_id=machine.id) }}{% else %}{{ url_for('machines.index') }}{% endif %}">
+        Cancel
+      </a>
+    </div>
+  </form>
+</div>
+{% endblock %}
