@@ -4,7 +4,13 @@ Employee-management tests for RepRequest.
 These tests verify that company administrators can create,
 edit, and delete employee accounts while preserving expected
 role and password behavior.
+
+Employees created through the admin route get a generated username
+and a temporary password emailed to their personal address, so the
+create form no longer has a password field.
 """
+
+import re
 
 from app.extensions import db
 from app.models import User
@@ -12,7 +18,10 @@ from app.roles import (
     EMPLOYEE_CREW,
     EMPLOYEE_TECHNICIAN
 )
-from app.services import company_service
+from app.services import (
+    company_service,
+    email_service
+)
 
 
 def login_admin(client):
@@ -23,7 +32,7 @@ def login_admin(client):
     return client.post(
         "/login",
         data={
-            "email": "admin@test.com",
+            "login": "admin@test.com",
             "password": "password123"
         }
     )
@@ -60,7 +69,6 @@ def test_admin_can_create_employee(client, app):
             "first_name": "Jane",
             "last_name": "Doe",
             "email": "jane@test.com",
-            "password": "password123",
             "role": EMPLOYEE_CREW
         }
     )
@@ -81,12 +89,32 @@ def test_admin_can_create_employee(client, app):
         assert employee.company is not None
         assert employee.company.name == "Test Company"
 
-        # Passwords should never be stored as plaintext.
-        assert employee.password_hash != "password123"
+        # A username and a temporary password were generated.
+        assert re.fullmatch(r"jdoe\d{2}", employee.username)
+        assert employee.must_change_password
 
-        # The stored hash should still validate the original password.
+    # The temporary password was emailed to the personal address.
+    assert len(email_service.sent_messages) == 1
+    assert email_service.sent_messages[0]["To"] == "jane@test.com"
+
+    body = email_service.sent_messages[0].get_content()
+
+    temporary_password = re.search(
+        r"Temporary password: (\S+)",
+        body
+    ).group(1)
+
+    with app.app_context():
+        employee = User.query.filter_by(
+            email="jane@test.com"
+        ).first()
+
+        # Passwords should never be stored as plaintext.
+        assert employee.password_hash != temporary_password
+
+        # The stored hash should validate the emailed password.
         assert employee.check_password(
-            "password123"
+            temporary_password
         )
 
 
@@ -106,7 +134,6 @@ def test_admin_can_change_employee_role(client, app):
             "first_name": "Jane",
             "last_name": "Doe",
             "email": "jane@test.com",
-            "password": "password123",
             "role": EMPLOYEE_CREW
         }
     )
@@ -160,7 +187,6 @@ def test_admin_can_edit_employee_information(client, app):
             "first_name": "Jane",
             "last_name": "Doe",
             "email": "jane@test.com",
-            "password": "password123",
             "role": EMPLOYEE_CREW
         }
     )
@@ -217,7 +243,6 @@ def test_admin_cannot_assign_invalid_employee_role(client, app):
             "first_name": "Bad",
             "last_name": "Role",
             "email": "badrole@test.com",
-            "password": "password123",
             "role": "company-admin"
         }
     )
@@ -251,7 +276,6 @@ def test_admin_cannot_create_duplicate_email(client, app):
             "first_name": "Jane",
             "last_name": "Doe",
             "email": "jane@test.com",
-            "password": "password123",
             "role": EMPLOYEE_CREW
         }
     )
@@ -263,7 +287,6 @@ def test_admin_cannot_create_duplicate_email(client, app):
             "first_name": "John",
             "last_name": "Doe",
             "email": "jane@test.com",
-            "password": "different-password",
             "role": EMPLOYEE_TECHNICIAN
         }
     )
@@ -300,7 +323,6 @@ def test_admin_can_delete_employee(client, app):
             "first_name": "Delete",
             "last_name": "Me",
             "email": "delete@test.com",
-            "password": "password123",
             "role": EMPLOYEE_CREW
         }
     )

@@ -23,7 +23,7 @@ from flask_login import current_user
 from app.roles import EMPLOYEE_ROLE_OPTIONS
 from app.authorization import company_admin_required
 from app.models import User
-from app.services import user_service
+from app.services import email_service, user_service
 from app.services.exceptions import (
     DuplicateEmailError,
     InvalidEmployeeRoleError
@@ -74,8 +74,8 @@ def dashboard():
 @company_admin_required
 def create_employee():
     """
-    Create an employee belonging to the authenticated
-    administrator's company.
+    Create an employee with a generated username and email them
+    a temporary password.
     """
 
     if request.method == "GET":
@@ -86,14 +86,12 @@ def create_employee():
     first_name = request.form["first_name"].strip()
     last_name = request.form["last_name"].strip()
     email = request.form["email"].strip().lower()
-    password = request.form["password"]
     role = request.form["role"]
 
     if (
         not first_name
         or not last_name
         or not email
-        or not password
         or not role
     ):
         return render_template(
@@ -102,16 +100,17 @@ def create_employee():
         )
 
     try:
-        user_service.create_employee(
-            # SECURITY:
-            # The company comes from the authenticated administrator,
-            # never from browser-submitted form data.
-            company_id=current_user.company_id,
-            first_name=first_name,
-            last_name=last_name,
-            email=email,
-            password=password,
-            role=role
+        employee, temporary_password = (
+            user_service.create_employee_with_temporary_password(
+                # SECURITY:
+                # The company comes from the authenticated administrator,
+                # never from browser-submitted form data.
+                company_id=current_user.company_id,
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+                role=role
+            )
         )
 
     except InvalidEmployeeRoleError:
@@ -126,14 +125,32 @@ def create_employee():
             error="An account with that email already exists."
         )
 
-    flash(
-        "Employee account created successfully.",
-        "success"
-    )
+    try:
+        email_service.send_welcome_email(
+            employee,
+            temporary_password
+        )
+
+        flash(
+            f"{employee.first_name}'s username is {employee.username}. "
+            f"A temporary password was emailed to {employee.email}.",
+            "success"
+        )
+
+    except OSError:
+        # smtplib errors are OSError subclasses. The account still
+        # exists, so give the admin the password to hand over.
+        flash(
+            f"Account created with username {employee.username}, but the "
+            f"email couldn't be sent. Give {employee.first_name} this "
+            f"temporary password in person: {temporary_password}",
+            "error"
+        )
 
     return redirect(
         url_for("admin.dashboard")
     )
+
 
 @admin_bp.route(
     "/employees/<int:employee_id>/edit",

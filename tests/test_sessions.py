@@ -10,7 +10,7 @@ from app.services import company_service, user_service
 def login(client, email, password):
     return client.post(
         "/login",
-        data={"email": email, "password": password}
+        data={"login": email, "password": password}
     )
 
 

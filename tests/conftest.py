@@ -51,3 +51,16 @@ def client(app):
     """
 
     return app.test_client()
+
+
+@pytest.fixture(autouse=True)
+def clear_email_outbox():
+    """
+    Start every test with no captured emails.
+    """
+
+    from app.services import email_service
+
+    email_service.sent_messages.clear()
+
+    yield

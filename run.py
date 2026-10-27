@@ -5,6 +5,10 @@ Application configuration and feature logic belong inside the
 app package rather than this file.
 """
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from app import create_app
 
 

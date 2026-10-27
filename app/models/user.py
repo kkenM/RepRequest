@@ -84,6 +84,23 @@ class User(UserMixin, db.Model):
         default=generate_session_token
     )
 
+    # Generated sign-in name for employees, e.g. "jdoe42".
+    # Company admins may not have one; they sign in with their email.
+    username = db.Column(
+        db.String(30),
+        unique=True,
+        index=True,
+        nullable=True
+    )
+
+    # True while the account still uses its emailed temporary password.
+    must_change_password = db.Column(
+        db.Boolean,
+        nullable=False,
+        default=False,
+        server_default=db.false()
+    )
+
     def get_id(self):
         """
         Return the value Flask-Login stores in the session cookie.

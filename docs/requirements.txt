@@ -4,5 +4,6 @@ Flask-Login
 Werkzeug
 Flask-Migrate
 pytest
+python-dotenv
 qrcode
 qrcode[pil]
