@@ -17,7 +17,7 @@ def login(client, email, password):
     return client.post(
         "/login",
         data={
-            "email": email,
+            "login": email,
             "password": password
         }
     )

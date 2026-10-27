@@ -57,7 +57,7 @@ def test_admin_cannot_edit_other_company_employee(
     client.post(
         "/login",
         data={
-            "email": "admin-a@test.com",
+            "login": "admin-a@test.com",
             "password": "password123"
         }
     )
@@ -116,7 +116,7 @@ def test_admin_cannot_delete_other_company_employee(
     client.post(
         "/login",
         data={
-            "email": "admin-a@test.com",
+            "login": "admin-a@test.com",
             "password": "password123"
         }
     )

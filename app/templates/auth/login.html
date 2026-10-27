@@ -44,13 +44,14 @@
             <form class="form" method="POST">
 
                 <div class="form__group">
-                    <label class="form__label" for="email">Email address</label>
+                    <label class="form__label" for="login">Username or email</label>
                     <input class="form__control"
-                           type="email"
-                           id="email"
-                           name="email"
+                           type="text"
+                           id="login"
+                           name="login"
                            autocomplete="username"
-                           placeholder="you@company.com"
+                           autocapitalize="none"
+                           placeholder="jdoe42 or you@company.com"
                            required>
                 </div>
 
@@ -64,6 +65,10 @@
                            placeholder="Enter your password"
                            required>
                 </div>
+
+                <p class="form__hint">
+                    <a href="{{ url_for('auth.forgot_password') }}">Forgot your password?</a>
+                </p>
 
                 <button type="submit" class="btn btn--primary btn--block btn--lg">
                     Log in

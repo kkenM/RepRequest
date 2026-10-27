@@ -50,13 +50,22 @@
     </div>
 
     <section class="section">
-        <form class="logout-form"
-            method="POST"
-            action="{{ url_for('auth.logout_all') }}">
-            <button type="submit" class="btn btn--ghost btn--sm">
-                Sign out of all devices
-            </button>
-        </form>
+        <div class="btn-row">
+
+            <a class="btn btn--ghost btn--sm"
+               href="{{ url_for('auth.change_password') }}">
+                Change password
+            </a>
+
+            <form class="logout-form"
+                  method="POST"
+                  action="{{ url_for('auth.logout_all') }}">
+                <button type="submit" class="btn btn--ghost btn--sm">
+                    Sign out of all devices
+                </button>
+            </form>
+
+        </div>
     </section>
 
     <!-- shortcuts --------------------------------------------------------- -->

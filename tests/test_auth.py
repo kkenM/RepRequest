@@ -55,7 +55,7 @@ def test_valid_login(client, app):
     response = client.post(
         "/login",
         data={
-            "email": "admin@test.com",
+            "login": "admin@test.com",
             "password": "password123"
         }
     )
@@ -81,11 +81,11 @@ def test_invalid_login(client, app):
     response = client.post(
         "/login",
         data={
-            "email": "admin@test.com",
+            "login": "admin@test.com",
             "password": "wrong-password"
         }
     )
 
     assert response.status_code == 200
 
-    assert b"Invalid email or password" in response.data
+    assert b"Invalid username, email or password" in response.data

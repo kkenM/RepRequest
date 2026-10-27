@@ -47,6 +47,17 @@ class Config:
     REMEMBER_COOKIE_SAME_SITE = "Lax"
     REMEMBER_COOKIE_SECURE = SESSION_COOKIE_SAME_SITE
 
+    # Outgoing email. Leave MAIL_SERVER unset to print emails
+    # to the terminal instead of sending them.
+    MAIL_SERVER = os.environ.get("MAIL_SERVER")
+    MAIL_PORT = int(os.environ.get("MAIL_PORT", 587))
+    MAIL_USERNAME = os.environ.get("MAIL_USERNAME")
+    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
+    MAIL_FROM = os.environ.get(
+        "MAIL_FROM",
+        "RepRequest <no-reply@localhost>"
+    )
+
 class TestingConfig(Config):
     """
     Configuration used by the automated test suite.
@@ -60,3 +71,5 @@ class TestingConfig(Config):
     SECRET_KEY = "test-secret-key"
 
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+
+    MAIL_SERVER = None
