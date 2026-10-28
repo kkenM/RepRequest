@@ -94,6 +94,7 @@
                                               onsubmit="return confirm(
                                                   'Delete {{ employee.first_name }} {{ employee.last_name }}? This cannot be undone.'
                                               );">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                             <button type="submit" class="btn btn--danger btn--sm">
                                                 Delete
                                             </button>

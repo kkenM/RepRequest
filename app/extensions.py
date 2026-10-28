@@ -9,6 +9,7 @@ when RepRequest starts.
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf import CSRFProtect
 
 
 # Database extension
@@ -22,3 +23,6 @@ login_manager = LoginManager()
 
 # Redirect unauthenticated users to the authentication Blueprint
 login_manager.login_view = "auth.login"
+
+# CSRF protection for every POST form
+csrf = CSRFProtect()

@@ -9,13 +9,14 @@ Do not place feature-specific routes or business logic in this module.
 Feature behavior should live in Blueprints and services.
 """
 
+import os
 from datetime import datetime
 from pathlib import Path
 
 from flask import Flask, request
 
 from config import Config
-from app.extensions import db, login_manager, migrate
+from app.extensions import csrf, db, login_manager, migrate
 
 def create_app(config_class=Config):
     """
@@ -36,6 +37,7 @@ def create_app(config_class=Config):
     # Initialize Flask extensions
     db.init_app(app)
     login_manager.init_app(app)
+    csrf.init_app(app)
 
     migrate.init_app(
         app,
@@ -69,11 +71,30 @@ def create_app(config_class=Config):
         }
 
 
-    # SECURITY: Don't let browser keep caches of pages
+    # SECURITY: Response headers added to every page
     @app.after_request
-    def prevent_page_caching(response):
+    def set_security_headers(response):
+
+        # Don't let the browser keep caches of pages
         if request.endpoint != "static":
             response.headers["Cache-Control"] = "no-store"
+
+        # Don't let the browser guess file types
+        response.headers["X-Content-Type-Options"] = "nosniff"
+
+        # Don't allow pages to be shown inside another site's frame
+        response.headers["X-Frame-Options"] = "DENY"
+
+        # Keep full URLs (such as password reset links) from being
+        # sent to other websites
+        response.headers["Referrer-Policy"] = "same-origin"
+
+        # Tell browsers to always use HTTPS once the site runs on it
+        if app.config["SESSION_COOKIE_SECURE"]:
+            response.headers["Strict-Transport-Security"] = (
+                "max-age=31536000"
+            )
+
         return response
 
     # Register application-wide error handling
@@ -84,17 +105,16 @@ def create_app(config_class=Config):
     # before creating database tables.
     from app.models import Company, User, Machine
 
-    '''
-    # SECURITY: Prevents public sign session cookies
-    # ENABLE LATER
+    # SECURITY: Refuse to start in production with the development
+    # SECRET_KEY, since anyone could use it to sign session cookies.
+    # Only the production server sets APP_ENV=production, so local
+    # development with the shared dev key still works.
     if (
-        not app.debug
-        and not app.testing
+        os.environ.get("APP_ENV") == "production"
         and app.config["SECRET_KEY"] == "dev-secret-key-change-before-production"
     ):
         raise RuntimeError(
             "Set the SECRET_KEY environment variable before running in production"
         )
-    '''
 
     return app
