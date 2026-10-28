@@ -3,6 +3,7 @@ Flask-SQLAlchemy
 Flask-Login
 Werkzeug
 Flask-Migrate
+Flask-WTF
 pytest
 python-dotenv
 qrcode

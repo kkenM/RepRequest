@@ -85,6 +85,12 @@ def register():
             error="All fields are required."
         )
 
+    if len(password) < 8:
+        return render_template(
+            "auth/register.html",
+            error="Use at least 8 characters for the password."
+        )
+
     try:
         company_service.create_company_with_admin(
             company_name=company_name,
@@ -185,8 +191,8 @@ def logout_all():
     session.clear()
 
     flash(
-        "Signed out on all devices."
-        "Success"
+        "Signed out on all devices.",
+        "success"
     )
 
     return redirect(

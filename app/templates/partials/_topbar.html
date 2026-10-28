@@ -81,6 +81,7 @@
                 <form class="logout-form"
                       method="POST"
                       action="{{ url_for('auth.logout') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit" class="btn btn--ghost btn--sm">
                         Sign out
                     </button>

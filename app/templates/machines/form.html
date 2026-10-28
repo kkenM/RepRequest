@@ -11,6 +11,7 @@
   <form class="mc-card"
         method="post"
         action="{% if machine %}{{ url_for('machines.edit', machine_id=machine.id) }}{% else %}{{ url_for('machines.create') }}{% endif %}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
     <h1 class="mc-title">{% if machine %}Rename machine{% else %}Add machine{% endif %}</h1>
 

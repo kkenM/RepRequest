@@ -36,7 +36,7 @@ class Config:
     SESSION_COOKIE_HTTPONLY = True
 
     # Cookie isn't sent on cross-site form posts.
-    SESSION_COOKIE_SAME_SITE = "Lax"
+    SESSION_COOKIE_SAMESITE = "Lax"
 
     # HTTPS only.
     SESSION_COOKIE_SECURE = (
@@ -44,8 +44,8 @@ class Config:
     )
 
     REMEMBER_COOKIE_HTTPONLY = True
-    REMEMBER_COOKIE_SAME_SITE = "Lax"
-    REMEMBER_COOKIE_SECURE = SESSION_COOKIE_SAME_SITE
+    REMEMBER_COOKIE_SAMESITE = "Lax"
+    REMEMBER_COOKIE_SECURE = SESSION_COOKIE_SECURE
 
     # Outgoing email. Leave MAIL_SERVER unset to print emails
     # to the terminal instead of sending them.
@@ -71,5 +71,9 @@ class TestingConfig(Config):
     SECRET_KEY = "test-secret-key"
 
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+
+    # Test requests are built without CSRF tokens.
+    # tests/test_security.py turns this back on to test it.
+    WTF_CSRF_ENABLED = False
 
     MAIL_SERVER = None
