@@ -8,23 +8,158 @@
             <span class="eyebrow">Repair queue</span>
             <h1>Requests</h1>
             <p class="page-head__sub">
-                Incoming repair requests for {{ current_user.company.name }}, ordered
+                Repair requests for {{ current_user.company.name }}, ordered
                 by severity so the most urgent machine is always at the top.
             </p>
         </div>
-        <span class="badge badge--soon">Coming soon</span>
     </div>
 
-    {% set feature_title = "The repair queue is not built yet" %}
-    {% set feature_lede =
-        "This is where a technician will pick up the requests crew members submit
-         after scanning a machine, claim them, and move them through the repair
-         workflow until the machine is back in service." %}
-    {% set feature_points = [
-        "Queue filtered by machine, severity and status",
-        "Claim a request and move it to In Progress",
-        "Close as Repair Complete, or mark the machine Down"
-    ] %}
-    {% include "partials/_coming_soon.html" %}
+    <div class="btn-row">
+        <a class="btn btn--sm {{ 'btn--primary' if view == 'open' else 'btn--secondary' }}"
+           href="{{ url_for('repairs.index', view='open') }}">Open</a>
+        <a class="btn btn--sm {{ 'btn--primary' if view == 'mine' else 'btn--secondary' }}"
+           href="{{ url_for('repairs.index', view='mine') }}">Assigned to me</a>
+        <a class="btn btn--sm {{ 'btn--primary' if view == 'closed' else 'btn--secondary' }}"
+           href="{{ url_for('repairs.index', view='closed') }}">Closed</a>
+        <a class="btn btn--sm {{ 'btn--primary' if view == 'all' else 'btn--secondary' }}"
+           href="{{ url_for('repairs.index', view='all') }}">All</a>
+    </div>
+
+    {% if repair_requests %}
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Severity</th>
+                        <th>Machine</th>
+                        <th>Problem</th>
+                        <th>Reported by</th>
+                        <th>Filed</th>
+                        <th>Assigned to</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for repair in repair_requests %}
+                        <tr>
+                            <td>
+                                <span class="badge badge--{{ repair.severity }}">
+                                    {{ repair.severity_label }}
+                                </span>
+                            </td>
+                            <td>{{ repair.machine.name }}</td>
+                            <td>{{ repair.description }}</td>
+                            <td>
+                                {% if repair.reported_by %}
+                                    {{ repair.reported_by.first_name }}
+                                    {{ repair.reported_by.last_name }}
+                                {% else %}
+                                    Former employee
+                                {% endif %}
+                            </td>
+                            <td>{{ repair.created_at.strftime('%b %d, %H:%M') }} UTC</td>
+                            <td>
+                                {% if repair.assigned_to %}
+                                    <p>
+                                        {{ repair.assigned_to.first_name }}
+                                        {{ repair.assigned_to.last_name }}
+                                    </p>
+                                {% else %}
+                                    <p class="form__hint">Unassigned</p>
+                                {% endif %}
+
+                                {% if is_admin %}
+                                    {# An administrator picks any technician, or themselves. #}
+                                    <form method="post"
+                                          action="{{ url_for('repairs.assign', request_id=repair.id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="view" value="{{ view }}">
+
+                                        <label class="form__label" for="assignee-{{ repair.id }}">
+                                            Assign {{ repair.machine.name }} to
+                                        </label>
+                                        <select class="form__control" id="assignee-{{ repair.id }}" name="assignee_id">
+                                            <option value="">Unassigned</option>
+                                            <option value="{{ current_user.id }}"
+                                                    {% if repair.assigned_to_id == current_user.id %}selected{% endif %}>
+                                                Me ({{ current_user.first_name }})
+                                            </option>
+                                            {% for tech in assignee_choices %}
+                                                <option value="{{ tech.id }}"
+                                                        {% if repair.assigned_to_id == tech.id %}selected{% endif %}>
+                                                    {{ tech.first_name }} {{ tech.last_name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                        <button type="submit" class="btn btn--sm btn--secondary">Assign</button>
+                                    </form>
+
+                                {% elif not repair.assigned_to_id %}
+                                    {# A technician may take a request nobody holds. #}
+                                    <form method="post"
+                                          action="{{ url_for('repairs.assign', request_id=repair.id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="view" value="{{ view }}">
+                                        <input type="hidden" name="assignee_id" value="{{ current_user.id }}">
+                                        <button type="submit" class="btn btn--sm btn--primary">Assign to me</button>
+                                    </form>
+
+                                {% elif repair.assigned_to_id == current_user.id %}
+                                    <form method="post"
+                                          action="{{ url_for('repairs.assign', request_id=repair.id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="view" value="{{ view }}">
+                                        <input type="hidden" name="assignee_id" value="">
+                                        <button type="submit" class="btn btn--sm btn--secondary">Unassign me</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form method="post"
+                                      action="{{ url_for('repairs.change_status', request_id=repair.id) }}">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="view" value="{{ view }}">
+
+                                    <label class="form__label" for="status-{{ repair.id }}">
+                                        Status of {{ repair.machine.name }}
+                                    </label>
+                                    <select class="form__control" id="status-{{ repair.id }}" name="status">
+                                        {% for value, label in status_options %}
+                                            <option value="{{ value }}"
+                                                    {% if repair.status == value %}selected{% endif %}>
+                                                {{ label }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="submit" class="btn btn--sm btn--secondary">Update</button>
+                                </form>
+
+                                {% if repair.status_updated_by %}
+                                    <p class="form__hint">
+                                        Changed by {{ repair.status_updated_by.first_name }}
+                                        {{ repair.status_updated_by.last_name }},
+                                        {{ repair.status_updated_at.strftime('%b %d, %H:%M') }} UTC
+                                    </p>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="card">
+            <div class="card__body">
+                {% if view == 'closed' %}
+                    <p>No completed or rejected requests yet.</p>
+                {% elif view == 'mine' %}
+                    <p>Nothing is assigned to you right now.</p>
+                {% else %}
+                    <p>No requests here. Requests appear when an employee
+                       scans a machine's QR code and reports a problem.</p>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
 
 {% endblock %}

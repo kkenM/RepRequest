@@ -8,6 +8,8 @@ Business operations should be delegated to the service layer whenever
 they are not specifically concerned with HTTP requests or sessions.
 """
 
+from urllib.parse import urlparse
+
 from flask import (
     Blueprint,
     current_app,
@@ -33,6 +35,31 @@ from app.services import (
     user_service
 )
 from app.services.exceptions import DuplicateEmailError
+
+
+
+def safe_next_url(target):
+    """
+    Return target only if it is a path on this site, otherwise None.
+
+    SECURITY: ?next= comes from the address bar. Accepting a full URL
+    such as https://evil.example would let an attacker send a user to
+    another site right after they sign in.
+    """
+
+    if not target or not target.startswith("/"):
+        return None
+
+    # "//host" and "/\\host" are treated by browsers as other sites.
+    if target.startswith("//") or "\\" in target:
+        return None
+
+    parsed = urlparse(target)
+
+    if parsed.scheme or parsed.netloc:
+        return None
+
+    return target
 
 
 auth_bp = Blueprint(
@@ -145,8 +172,11 @@ def login():
             # Expire after PERMANENT_SESSION_LIFETIME.
             session.permanent = True
 
+            # A scanned QR code sends signed-out users here with
+            # ?next=/m/<id>, so they land back on that machine.
             return redirect(
-                url_for("main.dashboard")
+                safe_next_url(request.args.get("next"))
+                or url_for("main.dashboard")
             )
 
         return render_template(

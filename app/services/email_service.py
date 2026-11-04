@@ -88,3 +88,51 @@ def send_password_reset_email(user, reset_url):
             "If you didn't ask for this, you can ignore this email.\n"
         )
     )
+
+
+def send_urgent_repair_email(user, repair_request):
+    """
+    Tell a technician that a high-severity repair request was filed.
+    """
+
+    machine = repair_request.machine
+    reporter = repair_request.reported_by
+
+    queue_url = url_for("repairs.index", _external=True)
+
+    send_email(
+        to=user.email,
+        subject=f"High severity: {machine.name} needs repair",
+        body=(
+            f"Hi {user.first_name},\n\n"
+            "A high-severity repair request was filed.\n\n"
+            f"Machine: {machine.name}\n"
+            f"Reported by: {reporter.first_name} {reporter.last_name}\n\n"
+            f"{repair_request.description}\n\n"
+            f"Open the repair queue: {queue_url}\n"
+        )
+    )
+
+
+def send_assignment_email(user, repair_request, assigned_by):
+    """
+    Tell a technician that an administrator assigned them a request.
+    """
+
+    machine = repair_request.machine
+
+    queue_url = url_for("repairs.index", view="mine", _external=True)
+
+    send_email(
+        to=user.email,
+        subject=f"Assigned to you: {machine.name}",
+        body=(
+            f"Hi {user.first_name},\n\n"
+            f"{assigned_by.first_name} {assigned_by.last_name} assigned "
+            "you a repair request.\n\n"
+            f"Machine: {machine.name}\n"
+            f"Severity: {repair_request.severity_label}\n\n"
+            f"{repair_request.description}\n\n"
+            f"Your assigned requests: {queue_url}\n"
+        )
+    )

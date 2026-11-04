@@ -1,19 +1,62 @@
 {% extends "base.html" %}
+{% block title %}Report a problem - RepRequest{% endblock %}
 
 {% block content %}
-<div class="scan-page">
-  <h1>{{ machine.name }}</h1>
+<div class="mc-wrap mc-wrap-small">
 
-  {% if machine.location %}
-    <p><strong>Location:</strong> {{ machine.location }}</p>
-  {% endif %}
+  <form class="mc-card"
+        method="post"
+        action="{{ url_for('repairs.submit', public_id=machine.public_id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-  {% if machine.asset_tag %}
-    <p><strong>Asset tag:</strong> {{ machine.asset_tag }}</p>
-  {% endif %}
+    <h1 class="mc-title">{{ machine.name }}</h1>
 
-  {# The repair-requests work will turn this button on. #}
-  <button type="button" disabled>Report a problem</button>
-  <p>Repair requests are coming soon.</p>
+    {% if machine.location %}
+      <p class="mc-hint"><strong>Location:</strong> {{ machine.location }}</p>
+    {% endif %}
+
+    {% if machine.asset_tag %}
+      <p class="mc-hint"><strong>Asset tag:</strong> {{ machine.asset_tag }}</p>
+    {% endif %}
+
+    {% if open_count %}
+      <div class="alert alert--info" role="status">
+        <span>
+          {{ open_count }} open request{{ '' if open_count == 1 else 's' }}
+          already filed for this machine. You can still add another.
+        </span>
+      </div>
+    {% endif %}
+
+    {% if error %}
+      <div class="alert alert--error" role="alert">
+        <span>{{ error }}</span>
+      </div>
+    {% endif %}
+
+    <fieldset class="form__fieldset">
+      <legend class="mc-label">How serious is it?</legend>
+
+      {% for value, label in severities %}
+        <label class="mc-label">
+          <input type="radio" name="severity" value="{{ value }}"
+                 {% if selected_severity == value %}checked{% endif %}
+                 required>
+          <span class="badge badge--{{ value }}">{{ label }}</span>
+        </label>
+      {% endfor %}
+    </fieldset>
+
+    <label class="mc-label" for="description">What is wrong?</label>
+    <textarea class="mc-input" id="description" name="description"
+              rows="5" maxlength="{{ max_description }}" required
+              placeholder="e.g. Spindle makes a grinding noise and stops mid-cycle">{{ description }}</textarea>
+
+    <div class="mc-actions">
+      <button type="submit" class="mc-btn mc-btn-primary">
+        Report problem
+      </button>
+    </div>
+  </form>
 </div>
 {% endblock %}

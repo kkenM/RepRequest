@@ -19,6 +19,7 @@ from itsdangerous import BadSignature, URLSafeTimedSerializer
 from app.roles import EMPLOYEE_ROLES
 from app.extensions import db
 from app.models import User
+from app.services import repair_service
 from app.services.exceptions import (
     DuplicateEmailError,
     InvalidEmployeeRoleError
@@ -288,7 +289,12 @@ def update_employee(
 def delete_employee(employee):
     """
     Permanently delete an employee account.
+
+    Their repair requests stay as history, so the account is detached
+    from them first.
     """
+
+    repair_service.release_user_from_requests(employee)
 
     db.session.delete(employee)
     db.session.commit()

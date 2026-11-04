@@ -12,10 +12,12 @@ Example:
 from app.models.company import Company
 from app.models.user import User
 from app.models.machine import Machine
+from app.models.repair_request import RepairRequest
 
 
 __all__ = [
     "Company",
     "User",
-    "Machine"
+    "Machine",
+    "RepairRequest"
 ]
