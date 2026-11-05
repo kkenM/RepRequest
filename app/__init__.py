@@ -103,7 +103,7 @@ def create_app(config_class=Config):
 
     # Ensure SQLAlchemy knows about all RepRequest models
     # before creating database tables.
-    from app.models import Company, User, Machine
+    from app.models import Company, User, Machine, RepairRequest
 
     # SECURITY: Refuse to start in production with the development
     # SECRET_KEY, since anyone could use it to sign session cookies.

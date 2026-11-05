@@ -26,6 +26,16 @@ def get_machine_by_public_id(public_id):
         public_id=public_id
     ).first()
 
+# Resolves a scanned QR ID, but only inside the given company.
+# Unknown IDs and other companies' machines both return None, so the
+# caller can answer both with the same 404.
+def get_company_machine_by_public_id(company_id, public_id):
+
+    return Machine.query.filter(
+        Machine.public_id == public_id,
+        Machine.company_id == company_id
+    ).first()
+
 # Creates a machine for the specific company
 def create_machine(company_id, name):
 
