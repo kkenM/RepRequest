@@ -79,34 +79,51 @@
                     <span>reprequest.app/repairs/queue</span>
                 </div>
                 <div class="mock__body">
+                    <ul class="rq-list">
 
-                    <div class="mock__row">
-                        <span class="avatar">HX</span>
-                        <span class="machine">
-                            <b>Haas VF-2 &middot; Bay 3</b>
-                            <span>Spindle alarm on startup</span>
-                        </span>
-                        <span class="badge badge--high">High</span>
-                    </div>
+                        <li class="rq-card rq-card--mini rq-card--high">
+                            <div class="rq-card__main">
+                                <span class="rq-avatar">HV</span>
+                                <div class="rq-card__body">
+                                    <div class="rq-card__title">
+                                        <span class="rq-card__machine">Haas VF-2 &middot; Bay 3</span>
+                                        <span class="badge badge--high">High</span>
+                                    </div>
+                                    <p class="rq-card__problem">Spindle alarm on startup</p>
+                                </div>
+                                <span class="rq-status rq-status--submitted">Submitted</span>
+                            </div>
+                        </li>
 
-                    <div class="mock__row">
-                        <span class="avatar">OK</span>
-                        <span class="machine">
-                            <b>Okuma Genos L250 &middot; Bay 1</b>
-                            <span>Coolant line leaking at fitting</span>
-                        </span>
-                        <span class="badge badge--medium">Medium</span>
-                    </div>
+                        <li class="rq-card rq-card--mini rq-card--medium">
+                            <div class="rq-card__main">
+                                <span class="rq-avatar">OG</span>
+                                <div class="rq-card__body">
+                                    <div class="rq-card__title">
+                                        <span class="rq-card__machine">Okuma Genos L250 &middot; Bay 1</span>
+                                        <span class="badge badge--medium">Medium</span>
+                                    </div>
+                                    <p class="rq-card__problem">Coolant line leaking at fitting</p>
+                                </div>
+                                <span class="rq-status rq-status--in-progress">In Progress</span>
+                            </div>
+                        </li>
 
-                    <div class="mock__row">
-                        <span class="avatar">BP</span>
-                        <span class="machine">
-                            <b>Bridgeport Mill &middot; Bay 7</b>
-                            <span>Work light out</span>
-                        </span>
-                        <span class="badge badge--low">Low</span>
-                    </div>
+                        <li class="rq-card rq-card--mini rq-card--low">
+                            <div class="rq-card__main">
+                                <span class="rq-avatar">BM</span>
+                                <div class="rq-card__body">
+                                    <div class="rq-card__title">
+                                        <span class="rq-card__machine">Bridgeport Mill &middot; Bay 7</span>
+                                        <span class="badge badge--low">Low</span>
+                                    </div>
+                                    <p class="rq-card__problem">Work light out</p>
+                                </div>
+                                <span class="rq-status rq-status--waiting-for-parts">Waiting for Parts</span>
+                            </div>
+                        </li>
 
+                    </ul>
                 </div>
             </div>
 

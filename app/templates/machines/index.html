@@ -1,55 +1,72 @@
 {% extends "base.html" %}
+{% block title %}Machines - RepRequest{% endblock %}
 
 {% block content %}
-<div class="mc-wrap">
 
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-    <h1 style="margin:0; font-size:1.5rem;">Machines</h1>
+  <div class="page-head">
+    <div class="page-head__text">
+      <span class="eyebrow">Equipment</span>
+      <h1>Machines</h1>
+      <p class="page-head__sub">
+        Every machine has its own QR code. Print the label and stick it on the
+        machine so anyone can report a problem in seconds.
+      </p>
+    </div>
 
     {% if is_admin and machines %}
-      <a class="mc-btn mc-btn-primary" href="{{ url_for('machines.create') }}">Add machine</a>
+      <a class="btn btn--primary" href="{{ url_for('machines.create') }}">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        Add machine
+      </a>
     {% endif %}
   </div>
 
   {% if machines %}
-    <div class="mc-card" style="padding:0.25rem 1.25rem;">
-      <table style="width:100%; border-collapse:collapse;">
-        <thead>
-          <tr style="text-align:left; color:#6b7280; font-size:0.8rem;">
-            <th style="padding:0.75rem 0;">Name</th>
-            <th style="padding:0.75rem 0;">Machine ID</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for machine in machines %}
-            <tr style="border-top:1px solid #e5e7eb;">
-              <td style="padding:0.75rem 0;">
-                <a href="{{ url_for('machines.detail', machine_id=machine.id) }}">
-                  {{ machine.name }}
-                </a>
-              </td>
-              <td style="padding:0.75rem 0; font-family:monospace; font-size:0.85rem; color:#6b7280;">
-                {{ machine.public_id }}
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+    <p class="mc-count">{{ machines|length }} machine{{ '' if machines|length == 1 else 's' }}</p>
+
+    <ul class="mc-grid">
+      {% for machine in machines %}
+        {% set words = machine.name.split() %}
+        <li>
+          <a class="mc-tile" href="{{ url_for('machines.detail', machine_id=machine.id) }}">
+            <span class="mc-tile__avatar" aria-hidden="true">
+              {{- (words[0][0] ~ (words[1][0] if words|length > 1 else ''))|upper -}}
+            </span>
+            <span class="mc-tile__text">
+              <span class="mc-tile__name">{{ machine.name }}</span>
+              <span class="mc-tile__id">{{ machine.public_id }}</span>
+            </span>
+            <span class="mc-tile__qr" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3z"/><path d="M14 14h3v3h-3zM18 18h3v3h-3z"/>
+              </svg>
+              QR
+            </span>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
   {% else %}
-    <div class="mc-card" style="text-align:center; padding:2rem 1.25rem;">
-      <p style="margin:0 0 0.25rem; font-size:1.1rem; font-weight:600;">No machines yet</p>
+    <div class="rq-empty">
+      <div class="rq-empty__icon" aria-hidden="true">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3z"/><path d="M14 14h3v3h-3zM18 18h3v3h-3z"/>
+        </svg>
+      </div>
+      <p class="rq-empty__title">No machines yet</p>
 
       {% if is_admin %}
-        <p class="mc-hint" style="margin-bottom:1rem;">Add your first machine to get its QR code.</p>
-        <a class="mc-btn mc-btn-primary" href="{{ url_for('machines.create') }}">
+        <p class="rq-empty__text">Add your first machine to get its QR code.</p>
+        <a class="btn btn--primary" href="{{ url_for('machines.create') }}">
           Add your first machine
         </a>
       {% else %}
-        <p class="mc-hint">Your company administrator hasn't added any machines yet.</p>
+        <p class="rq-empty__text">Your company administrator hasn't added any machines yet.</p>
       {% endif %}
     </div>
   {% endif %}
 
-</div>
 {% endblock %}

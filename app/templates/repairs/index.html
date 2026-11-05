@@ -14,151 +14,158 @@
         </div>
     </div>
 
-    <div class="btn-row">
-        <a class="btn btn--sm {{ 'btn--primary' if view == 'open' else 'btn--secondary' }}"
-           href="{{ url_for('repairs.index', view='open') }}">Open</a>
-        <a class="btn btn--sm {{ 'btn--primary' if view == 'mine' else 'btn--secondary' }}"
-           href="{{ url_for('repairs.index', view='mine') }}">Assigned to me</a>
-        <a class="btn btn--sm {{ 'btn--primary' if view == 'closed' else 'btn--secondary' }}"
-           href="{{ url_for('repairs.index', view='closed') }}">Closed</a>
-        <a class="btn btn--sm {{ 'btn--primary' if view == 'all' else 'btn--secondary' }}"
-           href="{{ url_for('repairs.index', view='all') }}">All</a>
-    </div>
+    <nav class="rq-tabs" aria-label="Filter requests">
+        {% for key, label in [('open', 'Open'), ('mine', 'Assigned to me'), ('closed', 'Closed'), ('all', 'All')] %}
+            <a class="rq-tab {{ 'rq-tab--active' if view == key }}"
+               href="{{ url_for('repairs.index', view=key) }}"
+               {% if view == key %}aria-current="page"{% endif %}>{{ label }}</a>
+        {% endfor %}
+    </nav>
 
     {% if repair_requests %}
-        <div class="table-wrap">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Severity</th>
-                        <th>Machine</th>
-                        <th>Problem</th>
-                        <th>Reported by</th>
-                        <th>Filed</th>
-                        <th>Assigned to</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for repair in repair_requests %}
-                        <tr>
-                            <td>
-                                <span class="badge badge--{{ repair.severity }}">
-                                    {{ repair.severity_label }}
+        <ul class="rq-list">
+            {% for repair in repair_requests %}
+                {% set words = repair.machine.name.split() %}
+                <li class="rq-card rq-card--{{ repair.severity }}">
+
+                    <div class="rq-card__main">
+                        <span class="rq-avatar" aria-hidden="true">
+                            {{- (words[0][0] ~ (words[1][0] if words|length > 1 else ''))|upper -}}
+                        </span>
+
+                        <div class="rq-card__body">
+                            <div class="rq-card__title">
+                                <h2 class="rq-card__machine">{{ repair.machine.name }}</h2>
+                                <span class="badge badge--{{ repair.severity }}">{{ repair.severity_label }}</span>
+                            </div>
+
+                            <p class="rq-card__problem">{{ repair.description }}</p>
+
+                            <p class="rq-card__meta">
+                                <span>
+                                    Reported by
+                                    {% if repair.reported_by %}
+                                        {{ repair.reported_by.first_name }}
+                                        {{ repair.reported_by.last_name }}
+                                    {% else %}
+                                        Former employee
+                                    {% endif %}
                                 </span>
-                            </td>
-                            <td>{{ repair.machine.name }}</td>
-                            <td>{{ repair.description }}</td>
-                            <td>
-                                {% if repair.reported_by %}
-                                    {{ repair.reported_by.first_name }}
-                                    {{ repair.reported_by.last_name }}
-                                {% else %}
-                                    Former employee
-                                {% endif %}
-                            </td>
-                            <td>{{ repair.created_at.strftime('%b %d, %H:%M') }} UTC</td>
-                            <td>
-                                {% if repair.assigned_to %}
-                                    <p>
-                                        {{ repair.assigned_to.first_name }}
-                                        {{ repair.assigned_to.last_name }}
-                                    </p>
-                                {% else %}
-                                    <p class="form__hint">Unassigned</p>
-                                {% endif %}
+                                <span>{{ repair.created_at.strftime('%b %d, %H:%M') }} UTC</span>
+                                <span>
+                                    {% if repair.assigned_to %}
+                                        Assigned to
+                                        <b>{{ repair.assigned_to.first_name }} {{ repair.assigned_to.last_name }}</b>
+                                    {% else %}
+                                        <span class="rq-unassigned">Unassigned</span>
+                                    {% endif %}
+                                </span>
+                            </p>
+                        </div>
 
-                                {% if is_admin %}
-                                    {# An administrator picks any technician, or themselves. #}
-                                    <form method="post"
-                                          action="{{ url_for('repairs.assign', request_id=repair.id) }}">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                        <input type="hidden" name="view" value="{{ view }}">
+                        <span class="rq-status rq-status--{{ repair.status }}">{{ repair.status_label }}</span>
+                    </div>
 
-                                        <label class="form__label" for="assignee-{{ repair.id }}">
-                                            Assign {{ repair.machine.name }} to
-                                        </label>
-                                        <select class="form__control" id="assignee-{{ repair.id }}" name="assignee_id">
-                                            <option value="">Unassigned</option>
-                                            <option value="{{ current_user.id }}"
-                                                    {% if repair.assigned_to_id == current_user.id %}selected{% endif %}>
-                                                Me ({{ current_user.first_name }})
-                                            </option>
-                                            {% for tech in assignee_choices %}
-                                                <option value="{{ tech.id }}"
-                                                        {% if repair.assigned_to_id == tech.id %}selected{% endif %}>
-                                                    {{ tech.first_name }} {{ tech.last_name }}
-                                                </option>
-                                            {% endfor %}
-                                        </select>
-                                        <button type="submit" class="btn btn--sm btn--secondary">Assign</button>
-                                    </form>
+                    <div class="rq-card__actions">
 
-                                {% elif not repair.assigned_to_id %}
-                                    {# A technician may take a request nobody holds. #}
-                                    <form method="post"
-                                          action="{{ url_for('repairs.assign', request_id=repair.id) }}">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                        <input type="hidden" name="view" value="{{ view }}">
-                                        <input type="hidden" name="assignee_id" value="{{ current_user.id }}">
-                                        <button type="submit" class="btn btn--sm btn--primary">Assign to me</button>
-                                    </form>
+                        {% if is_admin %}
+                            {# An administrator picks any technician, or themselves. #}
+                            <form class="rq-control" method="post"
+                                  action="{{ url_for('repairs.assign', request_id=repair.id) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="view" value="{{ view }}">
 
-                                {% elif repair.assigned_to_id == current_user.id %}
-                                    <form method="post"
-                                          action="{{ url_for('repairs.assign', request_id=repair.id) }}">
-                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                        <input type="hidden" name="view" value="{{ view }}">
-                                        <input type="hidden" name="assignee_id" value="">
-                                        <button type="submit" class="btn btn--sm btn--secondary">Unassign me</button>
-                                    </form>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <form method="post"
-                                      action="{{ url_for('repairs.change_status', request_id=repair.id) }}">
-                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                    <input type="hidden" name="view" value="{{ view }}">
+                                <label class="visually-hidden" for="assignee-{{ repair.id }}">
+                                    Assign {{ repair.machine.name }} to
+                                </label>
+                                <span class="rq-control__label" aria-hidden="true">Technician</span>
+                                <select class="rq-select" id="assignee-{{ repair.id }}" name="assignee_id">
+                                    <option value="">Unassigned</option>
+                                    <option value="{{ current_user.id }}"
+                                            {% if repair.assigned_to_id == current_user.id %}selected{% endif %}>
+                                        Me ({{ current_user.first_name }})
+                                    </option>
+                                    {% for tech in assignee_choices %}
+                                        <option value="{{ tech.id }}"
+                                                {% if repair.assigned_to_id == tech.id %}selected{% endif %}>
+                                            {{ tech.first_name }} {{ tech.last_name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn btn--sm btn--secondary">Assign</button>
+                            </form>
 
-                                    <label class="form__label" for="status-{{ repair.id }}">
-                                        Status of {{ repair.machine.name }}
-                                    </label>
-                                    <select class="form__control" id="status-{{ repair.id }}" name="status">
-                                        {% for value, label in status_options %}
-                                            <option value="{{ value }}"
-                                                    {% if repair.status == value %}selected{% endif %}>
-                                                {{ label }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                    <button type="submit" class="btn btn--sm btn--secondary">Update</button>
-                                </form>
+                        {% elif not repair.assigned_to_id %}
+                            {# A technician may take a request nobody holds. #}
+                            <form class="rq-control" method="post"
+                                  action="{{ url_for('repairs.assign', request_id=repair.id) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="view" value="{{ view }}">
+                                <input type="hidden" name="assignee_id" value="{{ current_user.id }}">
+                                <button type="submit" class="btn btn--sm btn--primary">Assign to me</button>
+                            </form>
 
-                                {% if repair.status_updated_by %}
-                                    <p class="form__hint">
-                                        Changed by {{ repair.status_updated_by.first_name }}
-                                        {{ repair.status_updated_by.last_name }},
-                                        {{ repair.status_updated_at.strftime('%b %d, %H:%M') }} UTC
-                                    </p>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                        {% elif repair.assigned_to_id == current_user.id %}
+                            <form class="rq-control" method="post"
+                                  action="{{ url_for('repairs.assign', request_id=repair.id) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="view" value="{{ view }}">
+                                <input type="hidden" name="assignee_id" value="">
+                                <button type="submit" class="btn btn--sm btn--secondary">Unassign me</button>
+                            </form>
+                        {% endif %}
+
+                        <form class="rq-control rq-control--status" method="post"
+                              action="{{ url_for('repairs.change_status', request_id=repair.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="view" value="{{ view }}">
+
+                            <label class="visually-hidden" for="status-{{ repair.id }}">
+                                Status of {{ repair.machine.name }}
+                            </label>
+                            <span class="rq-control__label" aria-hidden="true">Status</span>
+                            <select class="rq-select" id="status-{{ repair.id }}" name="status">
+                                {% for value, label in status_options %}
+                                    <option value="{{ value }}"
+                                            {% if repair.status == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn--sm btn--secondary">Update</button>
+                        </form>
+
+                        {% if repair.status_updated_by %}
+                            <p class="rq-card__changed">
+                                Changed by {{ repair.status_updated_by.first_name }}
+                                {{ repair.status_updated_by.last_name }},
+                                {{ repair.status_updated_at.strftime('%b %d, %H:%M') }} UTC
+                            </p>
+                        {% endif %}
+                    </div>
+
+                </li>
+            {% endfor %}
+        </ul>
     {% else %}
-        <div class="card">
-            <div class="card__body">
-                {% if view == 'closed' %}
-                    <p>No completed or rejected requests yet.</p>
-                {% elif view == 'mine' %}
-                    <p>Nothing is assigned to you right now.</p>
-                {% else %}
-                    <p>No requests here. Requests appear when an employee
-                       scans a machine's QR code and reports a problem.</p>
-                {% endif %}
+        <div class="rq-empty">
+            <div class="rq-empty__icon" aria-hidden="true">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-2.5z"/>
+                </svg>
             </div>
+            {% if view == 'closed' %}
+                <p class="rq-empty__title">No closed requests yet</p>
+                <p class="rq-empty__text">No completed or rejected requests yet.</p>
+            {% elif view == 'mine' %}
+                <p class="rq-empty__title">You're all caught up</p>
+                <p class="rq-empty__text">Nothing is assigned to you right now.</p>
+            {% else %}
+                <p class="rq-empty__title">No requests here</p>
+                <p class="rq-empty__text">Requests appear when an employee
+                   scans a machine's QR code and reports a problem.</p>
+            {% endif %}
         </div>
     {% endif %}
 
