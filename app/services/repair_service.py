@@ -24,8 +24,12 @@ from app.models.repair_request import (
     SEVERITIES,
     SEVERITY_HIGH,
     STATUSES,
-    STATUS_SUBMITTED
+    STATUS_SUBMITTED,
+    STATUS_COMPLETED
 )
+
+from app.models import MaintenanceLog
+
 from app.roles import COMPANY_ADMIN, EMPLOYEE_TECHNICIAN
 from app.services import email_service
 from app.services.exceptions import (
@@ -162,6 +166,13 @@ def change_status(repair_request, new_status, user):
     if new_status not in STATUSES:
         raise InvalidRepairRequestError("Choose a valid status.")
 
+    # Completing a repair requires a maintenance log, which is written
+    # by log_service.complete_repair_with_log().
+    if new_status == STATUS_COMPLETED:
+        raise InvalidRepairRequestError(
+            "Complete a repair by filling out its maintenance log."
+        )
+
     if new_status == repair_request.status:
         return repair_request
 
@@ -172,6 +183,17 @@ def change_status(repair_request, new_status, user):
     db.session.commit()
 
     return repair_request
+
+
+def apply_completed_status(repair_request, user):
+    """
+    Mark a request Completed WITHOUT committing.
+
+    Only log_service should call this, so the status change
+    and the log are saved in a single commit.
+    """
+
+    _set_status(repair_request, STATUS_COMPLETED, user)
 
 
 def get_company_technicians(company_id):
@@ -232,7 +254,7 @@ def assign_request(repair_request, assignee, acting_user):
 
         repair_request.assigned_to_id = None
 
-        # Nobody holds it any more, so it can't still be "Assigned".
+        # Nobody holds it anymore, so it can't still be "Assigned".
         if repair_request.status == STATUS_ASSIGNED:
             _set_status(repair_request, STATUS_ACKNOWLEDGED, acting_user)
 
@@ -304,6 +326,14 @@ def release_user_from_requests(user):
     )
     RepairRequest.query.filter_by(status_updated_by_id=user.id).update(
         {"status_updated_by_id": None}
+    )
+
+    # Logs keep the technician's name as history; only the link is cleared.
+    MaintenanceLog.query.filter_by(assigned_to_id=user.id).update(
+        {"assigned_to_id": None}
+    )
+    MaintenanceLog.query.filter_by(created_by_id=user.id).update(
+        {"created_by_id": None}
     )
 
     db.session.flush()

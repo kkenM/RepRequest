@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <p><a href="{{ url_for('logs.index') }}">&larr; All maintenance logs</a></p>
+  <h1>{{ machine.name }}: Maintenance Log</h1>
+  <p class="muted">Newest entry first. Entries are never edited.</p>
+</div>
+
+<div class="sheet-wrap">
+  <table class="sheet">
+    <thead>
+      <tr>
+        <th>Logged (UTC)</th>
+        <th>Machine Name</th>
+        <th>Machine ID</th>
+        <th>Condition</th>
+        <th>Location</th>
+        <th>Assigned To</th>
+        <th>Last Maintenance Date</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in logs %}
+        <tr>
+          <td class="nowrap">{{ log.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+          <td>{{ log.machine_name }}</td>
+          <td>{{ log.machine_id }}</td>
+          <td>
+            <span class="condition condition-{{ log.condition }}">
+              {{ log.condition_label }}
+            </span>
+          </td>
+          <td>{{ log.location or "—" }}</td>
+          <td>{{ log.assigned_to_name or "Unassigned" }}</td>
+          <td class="nowrap">
+            {{ log.last_maintenance_date or "—" }}
+          </td>
+          <td class="notes">{{ log.notes }}</td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="8">No maintenance logs yet for this machine.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

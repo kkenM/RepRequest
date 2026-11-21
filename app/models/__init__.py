@@ -10,6 +10,7 @@ Example:
 """
 
 from app.models.company import Company
+from app.models.maintenance_log import MaintenanceLog
 from app.models.user import User
 from app.models.machine import Machine
 from app.models.repair_request import RepairRequest
@@ -19,5 +20,6 @@ __all__ = [
     "Company",
     "User",
     "Machine",
-    "RepairRequest"
+    "RepairRequest",
+    "MaintenanceLog",
 ]

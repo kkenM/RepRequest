@@ -1,30 +1,45 @@
 {% extends "base.html" %}
-{% block title %}Maintenance Logs - RepRequest{% endblock %}
 
 {% block content %}
+<div class="page-header">
+  <h1>Maintenance Logs</h1>
+  <p class="muted">Choose a machine to see its maintenance history.</p>
+</div>
 
-    <div class="page-head">
-        <div class="page-head__text">
-            <span class="eyebrow">Service history</span>
-            <h1>Maintenance Logs</h1>
-            <p class="page-head__sub">
-                Every repair ever carried out on a {{ current_user.company.name }}
-                machine, kept permanently against that machine.
-            </p>
-        </div>
-        <span class="badge badge--soon">Coming soon</span>
-    </div>
-
-    {% set feature_title = "Maintenance logs are not built yet" %}
-    {% set feature_lede =
-        "This is where technicians will record what was done, which parts were
-         used and how long it took, building up a complete service history that
-         anyone in the company can read later." %}
-    {% set feature_points = [
-        "File work performed, parts used and labour hours",
-        "Required before a request can be marked Repair Complete",
-        "Full per-machine history, newest first"
-    ] %}
-    {% include "partials/_coming_soon.html" %}
-
+<div class="sheet-wrap">
+  <table class="sheet">
+    <thead>
+      <tr>
+        <th>Machine</th>
+        <th>Latest Condition</th>
+        <th>Last Maintenance</th>
+        <th>Entries</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in summaries %}
+        <tr>
+          <td>
+            <a href="{{ url_for('logs.machine_log', machine_id=s.machine.id) }}">
+              {{ s.machine.name }}
+            </a>
+          </td>
+          <td>{{ s.latest.condition_label if s.latest else "—" }}</td>
+          <td>
+            {% if s.latest %}
+              {{ s.latest.created_at.strftime("%Y-%m-%d") }}
+            {% else %}
+              No logs yet
+            {% endif %}
+          </td>
+          <td>{{ s.count }}</td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="4">No machines yet.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 {% endblock %}

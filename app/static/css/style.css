@@ -1853,3 +1853,83 @@ select.form__control {
     .rq-card__changed { text-align: left; }
     .mc-detail { flex-direction: column; align-items: flex-start; }
 }
+
+
+/* ==========================================================
+   Maintenance logs (logs/index, logs/machine_log, logs/log_form)
+   ========================================================== */
+
+.sheet-wrap {
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.sheet {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 720px;
+}
+
+.sheet th,
+.sheet td {
+  border: 1px solid #c8c8c8;
+  padding: 6px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.sheet thead th {
+  background: #f0f0f0;
+  position: sticky;
+  top: 0;
+}
+
+.sheet tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+
+/* Auto-filled cells in the form. */
+.sheet td.locked {
+  background: #eef0f3;
+  color: #555;
+}
+
+/* Cells the technician fills in. */
+.sheet td.editable {
+  background: #fffbe6;
+}
+
+.sheet input,
+.sheet select,
+.sheet textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+}
+
+.sheet td.nowrap { white-space: nowrap; }
+.sheet td.notes  { white-space: pre-wrap; }   /* keeps the technician's line breaks */
+
+.condition { font-weight: 600; }
+.condition-excellent,
+.condition-good { color: #1b7a3a; }
+.condition-fair { color: #9a6a00; }
+.condition-poor,
+.condition-needs-replacement { color: #b3261e; }
+
+.request-summary {
+  border: 1px solid #c8c8c8;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  background: #fafafa;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.muted { color: #666; }

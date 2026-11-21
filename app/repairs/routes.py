@@ -25,6 +25,7 @@ from app.models.repair_request import (
     SEVERITIES,
     SEVERITY_LABELS,
     STATUSES,
+    STATUS_COMPLETED,
     STATUS_LABELS
 )
 from app.roles import COMPANY_ADMIN, EMPLOYEE_CREW, EMPLOYEE_TECHNICIAN
@@ -89,6 +90,19 @@ def change_status(request_id):
 
     if repair_request is None:
         abort(404)
+
+    new_status = request.form.get("status", "")
+
+    # Completing a repair means filling out its maintenance log first.
+    # The log form saves the log and marks the request Completed together
+    if (
+            new_status == STATUS_COMPLETED
+            and repair_request.status != STATUS_COMPLETED
+    ):
+        return redirect(url_for(
+            "logs.complete_repair",
+            request_id=repair_request.id
+        ))
 
     try:
         repair_service.change_status(
