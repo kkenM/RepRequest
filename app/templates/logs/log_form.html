@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+  <p>
+    <a href="{{ url_for('repairs.index') }}">&larr; Back to the repair queue</a>
+  </p>
+  <h1>Maintenance Log: {{ prefill.machine_name }}</h1>
+  <p class="muted">
+    Fill in the highlighted cells to finish this repair. The grey cells are
+    filled in automatically.
+  </p>
+</div>
+
+<div class="request-summary">
+  <strong>Request #{{ repair_request.id }}</strong>
+  &middot; {{ repair_request.severity_label }} severity
+  &middot; {{ repair_request.status_label }}
+  <p>{{ repair_request.description }}</p>
+</div>
+
+<form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <div class="sheet-wrap">
+    <table class="sheet">
+      <thead>
+        <tr>
+          <th>Machine Name</th>
+          <th>Machine ID</th>
+          <th>Condition</th>
+          <th>Location</th>
+          <th>Assigned To</th>
+          <th>Last Maintenance Date</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="locked">{{ prefill.machine_name }}</td>
+          <td class="locked">{{ prefill.machine_id }}</td>
+
+          <td class="editable">
+            {% set chosen = request.form.get("condition", "") %}
+            <select name="condition" required aria-label="Condition">
+              <option value="">Select…</option>
+              {% for value, label in conditions %}
+                <option value="{{ value }}"
+                  {% if chosen == value %}selected{% endif %}>
+                  {{ label }}
+                </option>
+              {% endfor %}
+            </select>
+          </td>
+
+          <td class="editable">
+            <input type="text" name="location" maxlength="120"
+                   aria-label="Location"
+                   value="{{ request.form.get('location', prefill.location) }}">
+          </td>
+
+          <td class="locked">{{ prefill.assigned_to_name or "Unassigned" }}</td>
+
+          <td class="locked">
+            {{ prefill.last_maintenance_date or "First log" }}
+          </td>
+
+          <td class="editable">
+            <textarea name="notes" rows="4" maxlength="2000" required
+                      aria-label="Notes">{{ request.form.get("notes", "") }}</textarea>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="form-actions">
+    <button type="submit">Complete repair &amp; save log</button>
+    <a href="{{ url_for('repairs.index') }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

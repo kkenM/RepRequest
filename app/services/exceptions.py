@@ -50,3 +50,8 @@ class AssignmentNotAllowedError(ServiceError):
     """
 
     pass
+
+class InvalidMaintenanceLogError(Exception):
+    """
+    The submitted maintenance log can't be accepted.
+    """
