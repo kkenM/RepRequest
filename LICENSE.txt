@@ -1,0 +1,34 @@
+RepRequest Source-Available License
+
+Copyright © 2026 RepRequest Dev Team. All rights reserved.
+
+1.	PERMITTED USE
+
+You may view and read this source code, and run an unmodified copy for personal, educational, or evaluation purposes only.
+
+2.	RESTRICTIONS
+
+Without prior written permission from the copyright holder, you may NOT:
+   	a. modify, adapt, translate, or create derivative works of the Software;
+   	b. use the Software, in whole or in part, for any commercial purpose, including selling it,
+                offering it as a paid or ad-supported service, or using it in a business or commercial
+                product;
+   	c. copy, distribute, sublicense, or publish the Software or any part of it, except as required
+                to view it on the hosting platform where it was published;
+   	d. remove or alter this notice or any copyright notice.
+
+3.	NO CONTRIBUTIONS
+
+The copyright holder does not accept modifications to the Software from outside the project team.
+
+4.	OWNERSHIP
+
+The Software is licensed, not sold. All rights not expressly granted in this license are reserved by the copyright holder.
+
+5.	TERMINATION
+
+This license ends automatically if you breach any of its terms.
+
+6.	NO WARRANTY
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR ITS USE.
